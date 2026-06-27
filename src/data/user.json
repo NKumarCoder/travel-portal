@@ -1,0 +1,43 @@
+{
+  "id": "usr-001",
+  "firstName": "Alex",
+  "lastName": "Johnson",
+  "email": "alex.johnson@email.com",
+  "phone": "+1-555-0142",
+  "avatar": "/avatars/alex.jpg",
+  "dateOfBirth": "1992-03-15",
+  "nationality": "US",
+  "passport": {
+    "number": "X12345678",
+    "expiry": "2029-06-20",
+    "country": "US"
+  },
+  "preferences": {
+    "currency": "USD",
+    "language": "en",
+    "notifications": true
+  },
+  "savedTrips": ["pk-001", "pk-003"],
+  "recentSearches": [
+    {
+      "id": "sq-001",
+      "type": "flight",
+      "from": "New York",
+      "to": "London",
+      "departDate": "2026-07-15",
+      "returnDate": "2026-07-22",
+      "passengers": { "adults": 2, "children": 0, "infants": 0 },
+      "class": "economy",
+      "timestamp": "2026-06-10T14:30:00Z"
+    },
+    {
+      "id": "sq-002",
+      "type": "hotel",
+      "destination": "Bali",
+      "departDate": "2026-08-01",
+      "returnDate": "2026-08-07",
+      "passengers": { "adults": 2, "children": 1, "infants": 0 },
+      "timestamp": "2026-06-09T10:15:00Z"
+    }
+  ]
+}

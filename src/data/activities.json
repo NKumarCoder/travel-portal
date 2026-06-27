@@ -1,0 +1,71 @@
+[
+  {
+    "id": "ac-001",
+    "name": "Sunrise Volcano Trekking",
+    "image": "/activities/volcano-trek.jpg",
+    "images": ["/activities/volcano-1.jpg", "/activities/volcano-2.jpg"],
+    "location": {
+      "city": "Bali",
+      "country": "Indonesia",
+      "venue": "Mount Batur"
+    },
+    "category": "Adventure",
+    "duration": "6 hours",
+    "price": 75,
+    "currency": "USD",
+    "rating": 4.9,
+    "reviewCount": 2341,
+    "description": "Watch the sunrise from the summit of an active volcano with an experienced local guide.",
+    "highlights": ["Sunrise views", "Local breakfast", "Expert guide", "Small groups"],
+    "includes": ["Guide", "Breakfast", "Flashlight", "Transport"],
+    "availableDates": ["2026-07-15", "2026-07-16", "2026-07-17", "2026-07-18"],
+    "maxGroupSize": 12,
+    "difficulty": "moderate"
+  },
+  {
+    "id": "ac-002",
+    "name": "Historic City Walking Tour",
+    "image": "/activities/city-tour.jpg",
+    "images": ["/activities/city-1.jpg", "/activities/city-2.jpg"],
+    "location": {
+      "city": "Rome",
+      "country": "Italy",
+      "venue": "Colosseum Area"
+    },
+    "category": "Cultural",
+    "duration": "3 hours",
+    "price": 45,
+    "currency": "USD",
+    "rating": 4.7,
+    "reviewCount": 1876,
+    "description": "Explore ancient Roman ruins and hidden gems with an expert historian guide.",
+    "highlights": ["Skip-the-line access", "Expert historian", "Small group", "Photo opportunities"],
+    "includes": ["Guide", "Entry tickets", "Audio guide", "Map"],
+    "availableDates": ["2026-07-15", "2026-07-16", "2026-07-17", "2026-07-18", "2026-07-19"],
+    "maxGroupSize": 15,
+    "difficulty": "easy"
+  },
+  {
+    "id": "ac-003",
+    "name": "Scuba Diving Experience",
+    "image": "/activities/scuba.jpg",
+    "images": ["/activities/scuba-1.jpg", "/activities/scuba-2.jpg"],
+    "location": {
+      "city": "Phuket",
+      "country": "Thailand",
+      "venue": "Phi Phi Islands"
+    },
+    "category": "Water Sports",
+    "duration": "Full Day",
+    "price": 120,
+    "currency": "USD",
+    "rating": 4.8,
+    "reviewCount": 987,
+    "description": "Discover vibrant coral reefs and tropical marine life in crystal clear waters.",
+    "highlights": ["2 dive sites", "All equipment included", "Certified instructor", "Lunch on boat"],
+    "includes": ["Equipment", "Instructor", "Lunch", "Boat transfer", "Insurance"],
+    "availableDates": ["2026-07-16", "2026-07-18", "2026-07-20", "2026-07-22"],
+    "maxGroupSize": 8,
+    "difficulty": "moderate"
+  }
+]

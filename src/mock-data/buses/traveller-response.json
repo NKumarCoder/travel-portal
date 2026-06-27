@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "savedTravellers": [
+    {
+      "id": "tr-001",
+      "fullName": "Rahul Kumar",
+      "age": "28",
+      "gender": "male",
+      "nationality": "Indian",
+      "idType": "aadhar",
+      "idNumber": "XXXX-XXXX-4523"
+    },
+    {
+      "id": "tr-002",
+      "fullName": "Priya Sharma",
+      "age": "25",
+      "gender": "female",
+      "nationality": "Indian",
+      "idType": "passport",
+      "idNumber": "K1234567"
+    }
+  ],
+  "contactInfo": {
+    "mobile": "9876543210",
+    "email": "rahul.kumar@email.com",
+    "countryCode": "+91"
+  }
+}

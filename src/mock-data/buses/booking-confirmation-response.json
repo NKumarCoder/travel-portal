@@ -1,0 +1,58 @@
+{
+  "success": true,
+  "booking": {
+    "pnr": "TRV2026071542389",
+    "bookingId": "BK-78456123",
+    "status": "confirmed",
+    "journeyDetails": {
+      "operator": "Orange Travels",
+      "busType": "AC Sleeper",
+      "source": "Bangalore",
+      "destination": "Hyderabad",
+      "departureDate": "2026-07-15",
+      "departureTime": "21:00",
+      "arrivalDate": "2026-07-16",
+      "arrivalTime": "06:00",
+      "duration": "9h 00m",
+      "boardingPoint": {
+        "name": "Majestic",
+        "time": "21:00",
+        "address": "Kempegowda Bus Station, Platform 5"
+      },
+      "droppingPoint": {
+        "name": "MGBS",
+        "time": "06:00",
+        "address": "Mahatma Gandhi Bus Station"
+      }
+    },
+    "passengers": [
+      {
+        "name": "Rahul Kumar",
+        "age": 28,
+        "gender": "Male",
+        "seatNo": "U1"
+      },
+      {
+        "name": "Priya Sharma",
+        "age": 25,
+        "gender": "Female",
+        "seatNo": "U3"
+      }
+    ],
+    "paymentSummary": {
+      "baseFare": 2598,
+      "taxes": 130,
+      "convenienceFee": 50,
+      "discount": 0,
+      "totalAmount": 2778,
+      "currency": "INR",
+      "paymentMethod": "Google Pay (UPI)",
+      "transactionId": "TXN20260715183042"
+    },
+    "contact": {
+      "mobile": "+91 9876543210",
+      "email": "rahul.kumar@email.com"
+    },
+    "bookedAt": "2026-07-14T18:30:42Z"
+  }
+}

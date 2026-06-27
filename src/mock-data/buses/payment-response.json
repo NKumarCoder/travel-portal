@@ -1,0 +1,62 @@
+{
+  "success": true,
+  "paymentMethods": [
+    {
+      "id": "upi",
+      "type": "UPI",
+      "label": "UPI",
+      "description": "Pay using Google Pay, PhonePe, Paytm",
+      "icon": "smartphone",
+      "options": [
+        { "id": "gpay", "name": "Google Pay", "icon": "gpay" },
+        { "id": "phonepe", "name": "PhonePe", "icon": "phonepe" },
+        { "id": "paytm", "name": "Paytm UPI", "icon": "paytm" }
+      ]
+    },
+    {
+      "id": "cards",
+      "type": "Cards",
+      "label": "Credit / Debit Cards",
+      "description": "Visa, Mastercard, Rupay",
+      "icon": "credit-card",
+      "options": []
+    },
+    {
+      "id": "netbanking",
+      "type": "Net Banking",
+      "label": "Net Banking",
+      "description": "All major banks supported",
+      "icon": "building",
+      "options": [
+        { "id": "sbi", "name": "State Bank of India", "icon": "sbi" },
+        { "id": "hdfc", "name": "HDFC Bank", "icon": "hdfc" },
+        { "id": "icici", "name": "ICICI Bank", "icon": "icici" },
+        { "id": "axis", "name": "Axis Bank", "icon": "axis" }
+      ]
+    },
+    {
+      "id": "wallet",
+      "type": "Wallet",
+      "label": "Wallets",
+      "description": "Paytm, Amazon Pay, MobiKwik",
+      "icon": "wallet",
+      "options": [
+        { "id": "paytm-wallet", "name": "Paytm Wallet", "icon": "paytm" },
+        { "id": "amazon-pay", "name": "Amazon Pay", "icon": "amazon" },
+        { "id": "mobikwik", "name": "MobiKwik", "icon": "mobikwik" }
+      ]
+    },
+    {
+      "id": "emi",
+      "type": "EMI",
+      "label": "EMI",
+      "description": "No cost EMI available",
+      "icon": "calendar",
+      "options": [
+        { "id": "emi-3", "name": "3 Months (No Cost)", "icon": "emi" },
+        { "id": "emi-6", "name": "6 Months", "icon": "emi" },
+        { "id": "emi-12", "name": "12 Months", "icon": "emi" }
+      ]
+    }
+  ]
+}

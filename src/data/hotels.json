@@ -1,0 +1,80 @@
+[
+  {
+    "id": "ht-001",
+    "name": "The Grand Horizon Resort",
+    "image": "/hotels/grand-horizon.jpg",
+    "images": ["/hotels/grand-horizon-1.jpg", "/hotels/grand-horizon-2.jpg"],
+    "location": {
+      "city": "Bali",
+      "country": "Indonesia",
+      "address": "Jl. Raya Seminyak No. 88",
+      "coordinates": { "lat": -8.6895, "lng": 115.1681 }
+    },
+    "rating": 4.8,
+    "reviewCount": 1245,
+    "starRating": 5,
+    "pricePerNight": 320,
+    "currency": "USD",
+    "amenities": ["Pool", "Spa", "WiFi", "Restaurant", "Gym", "Beach Access", "Room Service"],
+    "roomTypes": [
+      { "id": "rt-001", "name": "Deluxe Ocean View", "capacity": 2, "pricePerNight": 320, "amenities": ["King Bed", "Balcony", "Mini Bar"], "available": true },
+      { "id": "rt-002", "name": "Premium Suite", "capacity": 4, "pricePerNight": 580, "amenities": ["Living Room", "Jacuzzi", "Butler Service"], "available": true }
+    ],
+    "checkIn": "14:00",
+    "checkOut": "11:00",
+    "description": "A luxurious beachfront resort offering world-class amenities and breathtaking ocean views.",
+    "cancellationPolicy": "Free cancellation up to 48 hours before check-in"
+  },
+  {
+    "id": "ht-002",
+    "name": "Urban Loft Hotel",
+    "image": "/hotels/urban-loft.jpg",
+    "images": ["/hotels/urban-loft-1.jpg", "/hotels/urban-loft-2.jpg"],
+    "location": {
+      "city": "Tokyo",
+      "country": "Japan",
+      "address": "1-2-3 Shinjuku, Tokyo",
+      "coordinates": { "lat": 35.6895, "lng": 139.6917 }
+    },
+    "rating": 4.5,
+    "reviewCount": 892,
+    "starRating": 4,
+    "pricePerNight": 185,
+    "currency": "USD",
+    "amenities": ["WiFi", "Restaurant", "Gym", "Business Center", "Laundry"],
+    "roomTypes": [
+      { "id": "rt-003", "name": "Standard Double", "capacity": 2, "pricePerNight": 185, "amenities": ["Queen Bed", "City View"], "available": true },
+      { "id": "rt-004", "name": "Executive Suite", "capacity": 2, "pricePerNight": 350, "amenities": ["King Bed", "Lounge Access", "Work Desk"], "available": false }
+    ],
+    "checkIn": "15:00",
+    "checkOut": "10:00",
+    "description": "A modern hotel in the heart of Shinjuku, perfect for business and leisure travelers.",
+    "cancellationPolicy": "Free cancellation up to 24 hours before check-in"
+  },
+  {
+    "id": "ht-003",
+    "name": "Mountain View Lodge",
+    "image": "/hotels/mountain-lodge.jpg",
+    "images": ["/hotels/mountain-lodge-1.jpg", "/hotels/mountain-lodge-2.jpg"],
+    "location": {
+      "city": "Interlaken",
+      "country": "Switzerland",
+      "address": "Höheweg 37, Interlaken",
+      "coordinates": { "lat": 46.6863, "lng": 7.8632 }
+    },
+    "rating": 4.9,
+    "reviewCount": 567,
+    "starRating": 5,
+    "pricePerNight": 450,
+    "currency": "USD",
+    "amenities": ["Spa", "WiFi", "Restaurant", "Ski Storage", "Heated Pool", "Mountain Tours"],
+    "roomTypes": [
+      { "id": "rt-005", "name": "Alpine Room", "capacity": 2, "pricePerNight": 450, "amenities": ["Mountain View", "Fireplace", "Balcony"], "available": true },
+      { "id": "rt-006", "name": "Chalet Suite", "capacity": 4, "pricePerNight": 780, "amenities": ["Living Area", "Kitchen", "Private Terrace"], "available": true }
+    ],
+    "checkIn": "14:00",
+    "checkOut": "11:00",
+    "description": "A charming alpine lodge with stunning views of the Swiss Alps and world-class ski access.",
+    "cancellationPolicy": "Free cancellation up to 72 hours before check-in"
+  }
+]

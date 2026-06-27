@@ -1,0 +1,115 @@
+[
+  {
+    "id": "fl-001",
+    "airline": "SkyWings Airlines",
+    "airlineLogo": "/airlines/skywings.png",
+    "flightNumber": "SW-142",
+    "departure": {
+      "city": "New York",
+      "airport": "John F. Kennedy International",
+      "code": "JFK",
+      "time": "08:30",
+      "date": "2026-07-15"
+    },
+    "arrival": {
+      "city": "London",
+      "airport": "Heathrow Airport",
+      "code": "LHR",
+      "time": "20:45",
+      "date": "2026-07-15"
+    },
+    "duration": "7h 15m",
+    "stops": 0,
+    "price": 645,
+    "currency": "USD",
+    "class": "economy",
+    "seatsAvailable": 23,
+    "baggage": { "cabin": "7kg", "checkin": "23kg" },
+    "refundable": true
+  },
+  {
+    "id": "fl-002",
+    "airline": "Pacific Air",
+    "airlineLogo": "/airlines/pacific.png",
+    "flightNumber": "PA-304",
+    "departure": {
+      "city": "San Francisco",
+      "airport": "San Francisco International",
+      "code": "SFO",
+      "time": "11:00",
+      "date": "2026-07-15"
+    },
+    "arrival": {
+      "city": "Tokyo",
+      "airport": "Narita International",
+      "code": "NRT",
+      "time": "14:30",
+      "date": "2026-07-16"
+    },
+    "duration": "11h 30m",
+    "stops": 1,
+    "stopDetails": ["Honolulu (2h layover)"],
+    "price": 892,
+    "currency": "USD",
+    "class": "economy",
+    "seatsAvailable": 8,
+    "baggage": { "cabin": "7kg", "checkin": "25kg" },
+    "refundable": false
+  },
+  {
+    "id": "fl-003",
+    "airline": "Emirates",
+    "airlineLogo": "/airlines/emirates.png",
+    "flightNumber": "EK-201",
+    "departure": {
+      "city": "Dubai",
+      "airport": "Dubai International",
+      "code": "DXB",
+      "time": "02:15",
+      "date": "2026-07-20"
+    },
+    "arrival": {
+      "city": "Singapore",
+      "airport": "Changi Airport",
+      "code": "SIN",
+      "time": "14:00",
+      "date": "2026-07-20"
+    },
+    "duration": "7h 45m",
+    "stops": 0,
+    "price": 1250,
+    "currency": "USD",
+    "class": "business",
+    "seatsAvailable": 4,
+    "baggage": { "cabin": "12kg", "checkin": "40kg" },
+    "refundable": true
+  },
+  {
+    "id": "fl-004",
+    "airline": "AeroConnect",
+    "airlineLogo": "/airlines/aeroconnect.png",
+    "flightNumber": "AC-589",
+    "departure": {
+      "city": "Los Angeles",
+      "airport": "Los Angeles International",
+      "code": "LAX",
+      "time": "16:45",
+      "date": "2026-07-18"
+    },
+    "arrival": {
+      "city": "Paris",
+      "airport": "Charles de Gaulle",
+      "code": "CDG",
+      "time": "12:30",
+      "date": "2026-07-19"
+    },
+    "duration": "10h 45m",
+    "stops": 0,
+    "price": 780,
+    "currency": "USD",
+    "class": "premium_economy",
+    "seatsAvailable": 12,
+    "baggage": { "cabin": "10kg", "checkin": "30kg" },
+    "refundable": true
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "bookings": [
+    {
+      "id": "BK-78456123",
+      "type": "bus",
+      "status": "confirmed",
+      "route": "Bangalore → Hyderabad",
+      "date": "2026-07-15",
+      "amount": 2778,
+      "currency": "INR",
+      "pnr": "TRV2026071542389"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "user": {
+    "id": "usr-001",
+    "firstName": "Rahul",
+    "lastName": "Kumar",
+    "email": "rahul.kumar@email.com",
+    "phone": "+91 9876543210",
+    "avatar": "/avatars/default.png",
+    "dateOfBirth": "1998-03-15",
+    "nationality": "Indian"
+  }
+}

@@ -1,0 +1,415 @@
+{
+  "success": true,
+  "message": "Buses found successfully",
+  "results": [
+    {
+      "id": "BUS001",
+      "operator": "Orange Travels",
+      "operatorLogo": "/buses/orange.png",
+      "busType": "sleeper",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "21:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "06:00", "date": "2026-07-16" },
+      "duration": "9h 00m",
+      "price": 1299,
+      "currency": "INR",
+      "seatsAvailable": 12,
+      "amenities": ["WiFi", "Charging Point", "Water Bottle", "Blanket", "GPS Tracking"],
+      "rating": 4.5,
+      "reviewCount": 1204,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "21:00", "address": "Kempegowda Bus Station, Platform 5" },
+        { "id": "bp-2", "name": "Silk Board", "time": "21:30", "address": "Silk Board Junction" },
+        { "id": "bp-3", "name": "Electronic City", "time": "21:50", "address": "Electronic City Toll Gate" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "Miyapur", "time": "05:00", "address": "Miyapur Metro Station" },
+        { "id": "dp-2", "name": "Ameerpet", "time": "05:30", "address": "Ameerpet Bus Stop" },
+        { "id": "dp-3", "name": "MGBS", "time": "06:00", "address": "Mahatma Gandhi Bus Station" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "Free cancellation up to 24 hours before departure. 50% refund between 12-24 hours." },
+        { "title": "Luggage Policy", "description": "1 bag (max 15kg) and 1 handbag allowed." }
+      ],
+      "images": ["/buses/orange-1.jpg"]
+    },
+    {
+      "id": "BUS002",
+      "operator": "VRL Travels",
+      "operatorLogo": "/buses/vrl.png",
+      "busType": "ac",
+      "departure": { "city": "Bangalore", "terminal": "Peenya", "time": "22:30", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "Secunderabad", "time": "06:30", "date": "2026-07-16" },
+      "duration": "8h 00m",
+      "price": 899,
+      "currency": "INR",
+      "seatsAvailable": 22,
+      "amenities": ["AC", "Reclining Seats", "Curtains", "Water Bottle"],
+      "rating": 4.1,
+      "reviewCount": 856,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Peenya", "time": "22:30", "address": "Peenya Industrial Area" },
+        { "id": "bp-2", "name": "Majestic", "time": "23:00", "address": "Majestic Bus Stand" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "Secunderabad", "time": "06:00", "address": "Secunderabad Railway Station" },
+        { "id": "dp-2", "name": "MGBS", "time": "06:30", "address": "MGBS Bus Station" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "Free cancellation up to 12 hours." },
+        { "title": "Luggage Policy", "description": "1 bag (max 20kg) per passenger." }
+      ],
+      "images": ["/buses/vrl-1.jpg"]
+    },
+    {
+      "id": "BUS003",
+      "operator": "KSRTC Airavat",
+      "operatorLogo": "/buses/ksrtc.png",
+      "busType": "ac",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "06:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "14:30", "date": "2026-07-15" },
+      "duration": "8h 30m",
+      "price": 750,
+      "currency": "INR",
+      "seatsAvailable": 30,
+      "amenities": ["AC", "Reclining Seats", "Curtains"],
+      "rating": 3.8,
+      "reviewCount": 2340,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "06:00", "address": "KSRTC Platform 1" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "MGBS", "time": "14:30", "address": "MGBS Bay 5" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "80% refund up to 4 hours before departure." },
+        { "title": "Luggage Policy", "description": "20kg per passenger." }
+      ],
+      "images": ["/buses/ksrtc-1.jpg"]
+    },
+    {
+      "id": "BUS004",
+      "operator": "SRS Travels",
+      "operatorLogo": "/buses/srs.png",
+      "busType": "semi_sleeper",
+      "departure": { "city": "Bangalore", "terminal": "Electronic City", "time": "20:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "Ameerpet", "time": "04:30", "date": "2026-07-16" },
+      "duration": "8h 30m",
+      "price": 1050,
+      "currency": "INR",
+      "seatsAvailable": 8,
+      "amenities": ["AC", "USB Charging", "Blanket", "Water Bottle", "GPS Tracking"],
+      "rating": 4.3,
+      "reviewCount": 567,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Electronic City", "time": "20:00", "address": "EC Phase 1" },
+        { "id": "bp-2", "name": "Silk Board", "time": "20:30", "address": "Silk Board Junction" },
+        { "id": "bp-3", "name": "Majestic", "time": "21:00", "address": "Majestic Platform 3" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "Miyapur", "time": "03:30", "address": "Miyapur Highway" },
+        { "id": "dp-2", "name": "Ameerpet", "time": "04:00", "address": "Ameerpet Metro" },
+        { "id": "dp-3", "name": "Lakdikapul", "time": "04:30", "address": "Lakdikapul Chowrasta" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "Free cancellation up to 24 hours." },
+        { "title": "Luggage Policy", "description": "1 bag (max 15kg) per person." }
+      ],
+      "images": ["/buses/srs-1.jpg"]
+    },
+    {
+      "id": "BUS005",
+      "operator": "IntrCity SmartBus",
+      "operatorLogo": "/buses/intrcity.png",
+      "busType": "ac",
+      "departure": { "city": "Bangalore", "terminal": "Silk Board", "time": "08:30", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "16:30", "date": "2026-07-15" },
+      "duration": "8h 00m",
+      "price": 1499,
+      "currency": "INR",
+      "seatsAvailable": 18,
+      "amenities": ["WiFi", "AC", "USB Charging", "Entertainment System", "Snacks", "Water Bottle"],
+      "rating": 4.7,
+      "reviewCount": 1890,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Silk Board", "time": "08:30", "address": "Silk Board Junction" },
+        { "id": "bp-2", "name": "Majestic", "time": "09:00", "address": "Majestic Bus Stand" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "Miyapur", "time": "15:30", "address": "Miyapur Metro" },
+        { "id": "dp-2", "name": "MGBS", "time": "16:30", "address": "MGBS Station" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "Free cancellation up to 24 hours." },
+        { "title": "Luggage Policy", "description": "1 bag max 15kg, 1 cabin 7kg." }
+      ],
+      "images": ["/buses/intrcity-1.jpg"]
+    },
+    {
+      "id": "BUS006",
+      "operator": "KPN Travels",
+      "operatorLogo": "/buses/kpn.png",
+      "busType": "semi_sleeper",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "23:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "Lakdi Ka Pul", "time": "07:30", "date": "2026-07-16" },
+      "duration": "8h 30m",
+      "price": 999,
+      "currency": "INR",
+      "seatsAvailable": 14,
+      "amenities": ["AC", "USB Charging", "Reclining Seats", "Water Bottle", "Blanket"],
+      "rating": 4.4,
+      "reviewCount": 768,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "23:00", "address": "Majestic Bus Stand" },
+        { "id": "bp-2", "name": "Electronic City", "time": "23:30", "address": "EC Toll Gate" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "Ameerpet", "time": "07:00", "address": "Ameerpet Crossroad" },
+        { "id": "dp-2", "name": "Lakdikapul", "time": "07:30", "address": "Lakdi Ka Pul" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "75% refund up to 24 hours." },
+        { "title": "Luggage Policy", "description": "1 bag max 15kg." }
+      ],
+      "images": ["/buses/kpn-1.jpg"]
+    },
+    {
+      "id": "BUS007",
+      "operator": "National Travels",
+      "operatorLogo": "/buses/national.png",
+      "busType": "sleeper",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "19:30", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "04:00", "date": "2026-07-16" },
+      "duration": "8h 30m",
+      "price": 1450,
+      "currency": "INR",
+      "seatsAvailable": 4,
+      "amenities": ["AC", "Blanket", "Pillow", "Water Bottle", "Charging Point", "Reading Light"],
+      "rating": 4.6,
+      "reviewCount": 432,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "19:30", "address": "Majestic Platform 10" },
+        { "id": "bp-2", "name": "Silk Board", "time": "20:00", "address": "Silk Board Near Bata" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "Miyapur", "time": "03:00", "address": "Miyapur Metro" },
+        { "id": "dp-2", "name": "MGBS", "time": "04:00", "address": "MGBS Station" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "Free cancellation up to 48 hours." },
+        { "title": "Luggage Policy", "description": "1 bag (max 15kg). No fragile items." }
+      ],
+      "images": ["/buses/national-1.jpg"]
+    },
+    {
+      "id": "BUS008",
+      "operator": "Sharma Travels",
+      "operatorLogo": "/buses/sharma.png",
+      "busType": "ac",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "07:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "Secunderabad", "time": "15:30", "date": "2026-07-15" },
+      "duration": "8h 30m",
+      "price": 799,
+      "currency": "INR",
+      "seatsAvailable": 25,
+      "amenities": ["AC", "Reclining Seats", "Curtains", "Water Bottle"],
+      "rating": 4.0,
+      "reviewCount": 1456,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "07:00", "address": "Majestic Bus Stand" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "Secunderabad", "time": "15:30", "address": "Secunderabad Station" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "50% refund up to 12 hours." },
+        { "title": "Luggage Policy", "description": "1 bag max 15kg." }
+      ],
+      "images": ["/buses/sharma-1.jpg"]
+    },
+    {
+      "id": "BUS009",
+      "operator": "Orange Travels",
+      "operatorLogo": "/buses/orange.png",
+      "busType": "non_ac",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "18:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "03:30", "date": "2026-07-16" },
+      "duration": "9h 30m",
+      "price": 549,
+      "currency": "INR",
+      "seatsAvailable": 35,
+      "amenities": ["Reclining Seats", "Curtains"],
+      "rating": 3.6,
+      "reviewCount": 3200,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "18:00", "address": "Majestic Bus Stand" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "MGBS", "time": "03:30", "address": "MGBS" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "80% refund up to 4 hours." },
+        { "title": "Luggage Policy", "description": "20kg per passenger." }
+      ],
+      "images": ["/buses/orange-2.jpg"]
+    },
+    {
+      "id": "BUS010",
+      "operator": "VRL Travels",
+      "operatorLogo": "/buses/vrl.png",
+      "busType": "sleeper",
+      "departure": { "city": "Bangalore", "terminal": "Silk Board", "time": "22:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "Ameerpet", "time": "06:00", "date": "2026-07-16" },
+      "duration": "8h 00m",
+      "price": 1199,
+      "currency": "INR",
+      "seatsAvailable": 6,
+      "amenities": ["AC", "Blanket", "Water Bottle", "Charging Point", "GPS Tracking"],
+      "rating": 4.4,
+      "reviewCount": 945,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Silk Board", "time": "22:00", "address": "Silk Board Junction" },
+        { "id": "bp-2", "name": "Majestic", "time": "22:30", "address": "Majestic Bus Stand" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "Ameerpet", "time": "05:30", "address": "Ameerpet Metro" },
+        { "id": "dp-2", "name": "MGBS", "time": "06:00", "address": "MGBS" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "Free cancellation up to 24 hours." },
+        { "title": "Luggage Policy", "description": "1 bag max 15kg." }
+      ],
+      "images": ["/buses/vrl-2.jpg"]
+    },
+    {
+      "id": "BUS011",
+      "operator": "IntrCity SmartBus",
+      "operatorLogo": "/buses/intrcity.png",
+      "busType": "ac",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "10:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "18:00", "date": "2026-07-15" },
+      "duration": "8h 00m",
+      "price": 1399,
+      "currency": "INR",
+      "seatsAvailable": 20,
+      "amenities": ["WiFi", "AC", "USB Charging", "Snacks", "Entertainment System", "GPS Tracking"],
+      "rating": 4.8,
+      "reviewCount": 2100,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "10:00", "address": "Majestic Bus Stand" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "MGBS", "time": "18:00", "address": "MGBS" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "Free cancellation up to 24 hours." },
+        { "title": "Luggage Policy", "description": "1 bag max 15kg, 1 cabin 7kg." }
+      ],
+      "images": ["/buses/intrcity-2.jpg"]
+    },
+    {
+      "id": "BUS012",
+      "operator": "SRS Travels",
+      "operatorLogo": "/buses/srs.png",
+      "busType": "sleeper",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "23:30", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "07:30", "date": "2026-07-16" },
+      "duration": "8h 00m",
+      "price": 1350,
+      "currency": "INR",
+      "seatsAvailable": 3,
+      "amenities": ["AC", "Blanket", "Pillow", "Charging Point", "Water Bottle", "Reading Light"],
+      "rating": 4.5,
+      "reviewCount": 678,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "23:30", "address": "Majestic Bus Stand" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "MGBS", "time": "07:30", "address": "MGBS" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "Free cancellation up to 48 hours." },
+        { "title": "Luggage Policy", "description": "1 bag max 15kg." }
+      ],
+      "images": ["/buses/srs-2.jpg"]
+    },
+    {
+      "id": "BUS013",
+      "operator": "KPN Travels",
+      "operatorLogo": "/buses/kpn.png",
+      "busType": "ac",
+      "departure": { "city": "Bangalore", "terminal": "Electronic City", "time": "14:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "22:30", "date": "2026-07-15" },
+      "duration": "8h 30m",
+      "price": 880,
+      "currency": "INR",
+      "seatsAvailable": 16,
+      "amenities": ["AC", "USB Charging", "Reclining Seats", "Water Bottle"],
+      "rating": 4.2,
+      "reviewCount": 534,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Electronic City", "time": "14:00", "address": "EC Toll" },
+        { "id": "bp-2", "name": "Silk Board", "time": "14:25", "address": "Silk Board" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "MGBS", "time": "22:30", "address": "MGBS" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "75% refund up to 12 hours." },
+        { "title": "Luggage Policy", "description": "1 bag max 15kg." }
+      ],
+      "images": ["/buses/kpn-2.jpg"]
+    },
+    {
+      "id": "BUS014",
+      "operator": "National Travels",
+      "operatorLogo": "/buses/national.png",
+      "busType": "semi_sleeper",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "16:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "00:30", "date": "2026-07-16" },
+      "duration": "8h 30m",
+      "price": 950,
+      "currency": "INR",
+      "seatsAvailable": 10,
+      "amenities": ["AC", "Blanket", "Water Bottle", "USB Charging"],
+      "rating": 4.1,
+      "reviewCount": 890,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "16:00", "address": "Majestic Bus Stand" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "MGBS", "time": "00:30", "address": "MGBS" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "Free cancellation up to 24 hours." },
+        { "title": "Luggage Policy", "description": "1 bag max 15kg." }
+      ],
+      "images": ["/buses/national-2.jpg"]
+    },
+    {
+      "id": "BUS015",
+      "operator": "Sharma Travels",
+      "operatorLogo": "/buses/sharma.png",
+      "busType": "seater",
+      "departure": { "city": "Bangalore", "terminal": "Majestic Bus Stand", "time": "05:00", "date": "2026-07-15" },
+      "arrival": { "city": "Hyderabad", "terminal": "MGBS", "time": "14:00", "date": "2026-07-15" },
+      "duration": "9h 00m",
+      "price": 499,
+      "currency": "INR",
+      "seatsAvailable": 32,
+      "amenities": ["Reclining Seats"],
+      "rating": 3.5,
+      "reviewCount": 4500,
+      "boardingPoints": [
+        { "id": "bp-1", "name": "Majestic", "time": "05:00", "address": "Majestic Bus Stand" }
+      ],
+      "droppingPoints": [
+        { "id": "dp-1", "name": "MGBS", "time": "14:00", "address": "MGBS" }
+      ],
+      "policies": [
+        { "title": "Cancellation Policy", "description": "80% refund up to 2 hours." },
+        { "title": "Luggage Policy", "description": "20kg per passenger." }
+      ],
+      "images": ["/buses/sharma-2.jpg"]
+    }
+  ]
+}
