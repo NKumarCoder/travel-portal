@@ -114,9 +114,8 @@ apiClient.interceptors.response.use(
         console.log("[Auth] Token expired — re-authenticating...");
       }
 
-      // Re-login silently (use plain axios, not apiClient to avoid interceptor loop)
-      // Login uses the dedicated LOGIN_API_BASE_URL (port 1678)
-      const { data } = await axios.post(`${LOGIN_API_BASE_URL}/api/v1.0/user/login`, {
+      // Re-login silently (use internal proxy route to avoid Mixed Content error)
+      const { data } = await axios.post("/api/auth/login", {
         username: "avinash",
         password: "abhi",
         ipAddress: "",

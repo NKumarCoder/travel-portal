@@ -113,9 +113,8 @@ async function performRenewal(): Promise<string> {
   isRenewing = true;
 
   try {
-    // Call login API directly (bypass apiClient to avoid interceptor loop)
-    // Login uses the dedicated LOGIN_API_BASE_URL (port 1678)
-    const { data } = await axios.post(`${LOGIN_API_BASE_URL}/api/v1.0/user/login`, {
+    // Call login proxy directly (bypass apiClient to avoid interceptor loop)
+    const { data } = await axios.post("/api/auth/login", {
       username: "avinash",
       password: "abhi",
       ipAddress: "",

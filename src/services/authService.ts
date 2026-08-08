@@ -62,12 +62,10 @@ export interface LoginResponse {
  * Body: { username, password, ipAddress, loginType: "Web" }
  */
 export async function login(): Promise<string> {
-  const loginUrl = `${LOGIN_API_BASE_URL}/api/v1.0/user/login`;
+  const loginUrl = "/api/auth/login";
 
-  console.log("[ENV DEBUG] Login API base URL configured:", !!LOGIN_API_BASE_URL);
-  console.log("[API DEBUG] Login API base URL:", LOGIN_API_BASE_URL);
-  console.log("[API DEBUG] Login endpoint: /api/v1.0/user/login");
-  console.log("[API DEBUG] FINAL LOGIN URL:", loginUrl);
+  console.log("[API DEBUG] Login endpoint: /api/auth/login");
+  console.log("[API DEBUG] FINAL LOGIN URL (Relative Proxy):", loginUrl);
 
   console.log("[AUTH DEBUG] LOGIN REQUEST START");
   console.log("[AUTH DEBUG] Method: POST");
@@ -129,7 +127,7 @@ export async function login(): Promise<string> {
 
       if (statusCode === 404) {
         console.error(
-          "[AUTH DEBUG] LOGIN API 404 — CHECK BASE URL / ENVIRONMENT CONFIGURATION"
+          "[AUTH DEBUG] LOGIN API 404 — CHECK ROUTE / ENVIRONMENT CONFIGURATION"
         );
         console.error("[AUTH DEBUG] Actual Response URL:", error.config?.url);
         console.error("[AUTH DEBUG] Configured Login URL:", loginUrl);
