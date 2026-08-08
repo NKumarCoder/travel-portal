@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL, TOKEN_KEY } from "@/lib/api";
+import { LOGIN_API_BASE_URL, TOKEN_KEY } from "@/lib/api";
 import { storeToken, getTokenAgeMinutes, shouldRefreshToken, clearToken } from "./tokenManager";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -114,18 +114,22 @@ async function performRenewal(): Promise<string> {
 
   try {
     // Call login API directly (bypass apiClient to avoid interceptor loop)
-    const { data } = await axios.post(`${API_BASE_URL}/api/bus/login`, {
+    // Login uses the dedicated LOGIN_API_BASE_URL (port 1678)
+    const { data } = await axios.post(`${LOGIN_API_BASE_URL}/api/v1.0/user/login`, {
       username: "avinash",
       password: "abhi",
+      ipAddress: "",
+      loginType: "Web",
     }, {
       headers: { "Content-Type": "application/json" },
       timeout: 15000,
     });
 
-    const newToken: string = data.accessToken;
+    // New API returns: { isSuccess, message, data: { tokenId, user } }
+    const newToken: string = data?.data?.tokenId;
 
-    if (!newToken) {
-      throw new Error("No accessToken in renewal response");
+    if (!data?.isSuccess || !newToken) {
+      throw new Error(data?.message || "No tokenId in renewal response");
     }
 
     // Update storage (token + timestamp)

@@ -1,10 +1,50 @@
 import axios from "axios";
-import { API_BASE_URL, TOKEN_KEY } from "@/lib/api";
+import { LOGIN_API_BASE_URL, TOKEN_KEY } from "@/lib/api";
 import { storeToken, clearToken } from "@/services/auth/tokenManager";
 
+/**
+ * User profile returned by the Login API.
+ */
+export interface LoginApiUser {
+  id: number;
+  roleId: number;
+  membershipId: number;
+  username: string;
+  email: string;
+  isd: string;
+  phone: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  role: string;
+  membership: string;
+  balance: number;
+  creditBalance: number;
+  title: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  companyName: string;
+  pincode: string;
+  registeredIP: string;
+  isActive: boolean;
+  createdOn: string;
+  apiType: string;
+}
+
+/**
+ * Response envelope returned by the new Login API.
+ *
+ * POST /api/v1.0/user/login
+ */
 export interface LoginResponse {
-  traceId: string;
-  accessToken: string;
+  isSuccess: boolean;
+  message: string;
+  data: {
+    tokenId: string;
+    user: LoginApiUser;
+  };
 }
 
 /**
@@ -18,11 +58,11 @@ export interface LoginResponse {
  * Authenticate with the Bus Login API.
  * Stores the returned access token in localStorage.
  *
- * Endpoint: POST {API_BASE_URL}/api/bus/login
- * Body: { username: "avinash", password: "abhi" }
+ * Endpoint: POST {LOGIN_API_BASE_URL}/api/v1.0/user/login
+ * Body: { username, password, ipAddress, loginType: "Web" }
  */
 export async function login(): Promise<string> {
-  const loginUrl = `${API_BASE_URL}/api/bus/login`;
+  const loginUrl = `${LOGIN_API_BASE_URL}/api/v1.0/user/login`;
 
   if (process.env.NODE_ENV === "development") {
     console.log("[Auth] Login request started");
@@ -30,11 +70,13 @@ export async function login(): Promise<string> {
   }
 
   try {
-    const { data } = await axios.post<LoginResponse>(
+    const { data: response } = await axios.post<LoginResponse>(
       loginUrl,
       {
         username: "avinash",
         password: "abhi",
+        ipAddress: "",
+        loginType: "Web",
       },
       {
         headers: { "Content-Type": "application/json" },
@@ -42,18 +84,26 @@ export async function login(): Promise<string> {
       }
     );
 
-    const { accessToken } = data;
+    // Validate response envelope
+    if (!response.isSuccess || !response.data?.tokenId) {
+      const reason = !response.isSuccess
+        ? (response.message || "Login API returned isSuccess=false")
+        : "Login API response missing tokenId";
+      throw new Error(reason);
+    }
+
+    const token = response.data.tokenId;
 
     // Store token + record login timestamp for background renewal
-    storeToken(accessToken);
+    storeToken(token);
 
     if (process.env.NODE_ENV === "development") {
       console.log("[Auth] Login successful");
-      console.log("[Auth] Token stored in localStorage");
+      console.log("[Auth] Authentication token received");
 
-      // Attempt to decode JWT expiry for logging
+      // Attempt to decode JWT expiry for logging — never log the token itself
       try {
-        const payload = JSON.parse(atob(accessToken.split(".")[1]));
+        const payload = JSON.parse(atob(token.split(".")[1]));
         if (payload.exp) {
           console.log(
             "[Auth] Token expiry:",
@@ -65,7 +115,7 @@ export async function login(): Promise<string> {
       }
     }
 
-    return accessToken;
+    return token;
   } catch (error: unknown) {
     if (process.env.NODE_ENV === "development") {
       console.error("[Auth] Login failed");

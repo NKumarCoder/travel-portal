@@ -3,11 +3,13 @@ import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { storeToken } from "@/services/auth/tokenManager";
 
 /**
- * API Base URL — reads from environment variable.
- * Set NEXT_PUBLIC_API_BASE_URL in .env.local
- * Example: NEXT_PUBLIC_API_BASE_URL=http://46.62.206.214:1621
+ * API Base URLs — read from environment variables.
+ * Set both variables in .env.local:
+ *   NEXT_PUBLIC_API_BASE_URL       = http://46.62.206.214:1621  (all APIs except login)
+ *   NEXT_PUBLIC_LOGIN_API_BASE_URL = http://46.62.206.214:1678  (login only)
  */
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+const LOGIN_API_BASE_URL = process.env.NEXT_PUBLIC_LOGIN_API_BASE_URL || API_BASE_URL;
 
 const TOKEN_KEY = "bus_access_token";
 
@@ -113,12 +115,20 @@ apiClient.interceptors.response.use(
       }
 
       // Re-login silently (use plain axios, not apiClient to avoid interceptor loop)
-      const { data } = await axios.post(`${API_BASE_URL}/api/bus/login`, {
+      // Login uses the dedicated LOGIN_API_BASE_URL (port 1678)
+      const { data } = await axios.post(`${LOGIN_API_BASE_URL}/api/v1.0/user/login`, {
         username: "avinash",
         password: "abhi",
+        ipAddress: "",
+        loginType: "Web",
       });
 
-      const newToken: string = data.accessToken;
+      // New API returns: { isSuccess, message, data: { tokenId, user } }
+      if (!data?.isSuccess || !data?.data?.tokenId) {
+        throw new Error(data?.message || "Re-authentication failed: token not received");
+      }
+
+      const newToken: string = data.data.tokenId;
 
       // Store with timestamp reset
       storeToken(newToken);
@@ -152,5 +162,5 @@ apiClient.interceptors.response.use(
   }
 );
 
-export { apiClient, API_BASE_URL, TOKEN_KEY };
+export { apiClient, API_BASE_URL, LOGIN_API_BASE_URL, TOKEN_KEY };
 export default apiClient;
