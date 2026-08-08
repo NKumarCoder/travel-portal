@@ -10,6 +10,7 @@ import type { BusBoardingPoint } from "@/types";
 interface SelectionSummaryProps {
   busId: string;
   onContinue: () => void;
+  isProcessing?: boolean;
   className?: string;
 }
 
@@ -25,7 +26,7 @@ interface SelectionSummaryProps {
  *
  * Updates live as the user interacts.
  */
-export function SelectionSummary({ busId, onContinue, className }: SelectionSummaryProps) {
+export function SelectionSummary({ busId, onContinue, isProcessing, className }: SelectionSummaryProps) {
   const {
     selectedSeats,
     boardingPoint,
@@ -128,10 +129,10 @@ export function SelectionSummary({ busId, onContinue, className }: SelectionSumm
         {/* Continue button */}
         <Button
           className="w-full h-11 text-sm font-semibold"
-          disabled={!valid}
+          disabled={!valid || isProcessing}
           onClick={onContinue}
         >
-          Continue Booking
+          {isProcessing ? "Please wait..." : "Continue Booking"}
         </Button>
       </div>
     </div>

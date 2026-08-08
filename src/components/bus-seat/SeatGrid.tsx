@@ -27,8 +27,8 @@ export function SeatGrid({
   canSelect,
   onSeatSelect,
 }: SeatGridProps) {
-  // Base cell size reduced 25% (72 → 54)
-  const baseCell = 54;
+  // Base cell size reduced (42 → 34 for ~20% compact density)
+  const baseCell = 34;
   const cellSize = Math.round(baseCell * (zoom / 100));
 
   // Compute grid template from deck dimensions
@@ -41,7 +41,7 @@ export function SeatGrid({
       display: "grid" as const,
       gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
       gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
-      gap: "2px",
+      gap: "1.5px",
     };
   }, [deck.seats, cellSize]);
 

@@ -40,21 +40,21 @@ export function ProgressStepper({ seatsSelected, pointsSelected, className }: Pr
   const steps: StepConfig[] = [
     {
       id: 1,
-      title: "Select Seats",
+      title: "Select Seat",
       description: step1Done ? `${seatsSelected} seat${seatsSelected > 1 ? "s" : ""} chosen` : "Choose your seats",
       icon: <Armchair className="h-4 w-4" />,
       status: step1Done ? "completed" : "active",
     },
     {
       id: 2,
-      title: "Boarding & Drop",
+      title: "Boarding Point",
       description: step2Done ? "Points selected" : "Pick-up & drop-off",
       icon: <MapPin className="h-4 w-4" />,
       status: step2Done ? "completed" : step1Done ? "active" : "pending",
     },
     {
       id: 3,
-      title: "Confirm",
+      title: "Passenger Details",
       description: "Review & pay",
       icon: <CreditCard className="h-4 w-4" />,
       status: step2Done ? "active" : "pending",
@@ -78,32 +78,32 @@ function StepItem({ step }: { step: StepConfig }) {
   const isActive = step.status === "active";
 
   return (
-    <div className="flex items-center gap-2 px-3">
+    <div className="flex items-center gap-1.5 px-2">
       {/* Circle icon */}
       <div
         className={cn(
-          "flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-all duration-300",
-          isCompleted && "bg-green-500 text-white shadow-sm shadow-green-200",
-          isActive && "bg-blue-600 text-white shadow-sm shadow-blue-200",
-          step.status === "pending" && "bg-gray-200 text-gray-400"
+          "flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all duration-300",
+          isCompleted && "bg-emerald-500 text-white shadow-xs shadow-emerald-200",
+          isActive && "bg-blue-600 text-white shadow-xs shadow-blue-200",
+          step.status === "pending" && "bg-slate-800 text-slate-500 border border-slate-700"
         )}
       >
-        {isCompleted ? <Check className="h-3.5 w-3.5" /> : step.icon}
+        {isCompleted ? <Check className="h-3 w-3" /> : step.icon}
       </div>
 
       {/* Text */}
       <div className="hidden sm:block">
         <p
           className={cn(
-            "text-[11px] font-semibold leading-tight transition-colors duration-300",
-            isCompleted && "text-green-700",
-            isActive && "text-blue-700",
-            step.status === "pending" && "text-gray-400"
+            "text-[10px] font-bold leading-tight transition-colors duration-300",
+            isCompleted && "text-emerald-400",
+            isActive && "text-blue-400",
+            step.status === "pending" && "text-slate-400"
           )}
         >
           {step.title}
         </p>
-        <p className="text-[10px] text-gray-400 leading-tight">{step.description}</p>
+        <p className="text-[9px] text-slate-400 leading-none mt-0.5">{step.description}</p>
       </div>
     </div>
   );
@@ -113,8 +113,8 @@ function Connector({ status }: { status: "done" | "pending" }) {
   return (
     <div
       className={cn(
-        "h-[2px] w-8 transition-colors duration-300 sm:w-12",
-        status === "done" ? "bg-green-400" : "bg-gray-200"
+        "h-[1.5px] w-5 transition-colors duration-300 sm:w-8",
+        status === "done" ? "bg-emerald-400" : "bg-slate-700"
       )}
     />
   );

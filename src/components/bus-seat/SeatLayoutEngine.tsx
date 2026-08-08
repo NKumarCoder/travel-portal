@@ -25,6 +25,8 @@ interface SeatLayoutEngineProps {
   busId: string;
   /** Called when user clicks Continue */
   onContinue: () => void;
+  /** Whether the booking is processing/loading */
+  isProcessing?: boolean;
   /** Additional CSS classes */
   className?: string;
 }
@@ -49,6 +51,7 @@ export function SeatLayoutEngine({
   droppingPoints,
   busId,
   onContinue,
+  isProcessing,
   className,
 }: SeatLayoutEngineProps) {
   const {
@@ -155,7 +158,7 @@ export function SeatLayoutEngine({
       {/* ═══ Right: Selection Summary (sticky on desktop) ═══ */}
       <aside className="hidden w-80 shrink-0 lg:block">
         <div className="sticky top-4">
-          <SelectionSummary busId={busId} onContinue={onContinue} />
+          <SelectionSummary busId={busId} onContinue={onContinue} isProcessing={isProcessing} />
         </div>
       </aside>
     </div>

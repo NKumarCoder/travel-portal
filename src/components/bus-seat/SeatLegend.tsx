@@ -27,17 +27,17 @@ interface SeatLegendProps {
  */
 export function SeatLegend({ className }: SeatLegendProps) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-2", className)}>
+    <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1.5", className)}>
       {LEGEND_ITEMS.map((item) => (
         <div key={item.label} className="flex items-center gap-1.5">
           <div
             className={cn(
-              "h-4 w-4 rounded border-2",
+              "h-3 w-3 rounded-xs border-[1.5px]",
               item.bg,
               item.border
             )}
           />
-          <span className="text-[11px] text-gray-600">{item.label}</span>
+          <span className="text-[10px] font-medium text-slate-600">{item.label}</span>
         </div>
       ))}
     </div>

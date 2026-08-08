@@ -64,7 +64,7 @@ export const SeatCard = memo(function SeatCard({
         gridRowStart: placement.rowStart,
         gridColumnEnd: `span ${placement.colSpan}`,
         gridRowEnd: `span ${placement.rowSpan}`,
-        padding: "2px",
+        padding: "1px",
       }}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
@@ -82,7 +82,7 @@ export const SeatCard = memo(function SeatCard({
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
           // Shape
           isSeater && "rounded-md rounded-t-lg",
-          isSleeper && "rounded-lg",
+          isSleeper && "rounded-md sm:rounded-lg",
           // Border & colors
           "border-[1.5px]",
           colors.bg,
@@ -92,22 +92,17 @@ export const SeatCard = memo(function SeatCard({
           // Hover
           clickable && colors.hoverBg,
           clickable && colors.hoverBorder,
-          clickable && "cursor-pointer hover:scale-[1.06] hover:-translate-y-[1px] active:scale-95",
+          clickable && "cursor-pointer hover:scale-[1.05] hover:-translate-y-[1px] active:scale-95",
           !clickable && "cursor-not-allowed opacity-80",
           // Selected glow
-          isSelected && "ring-1 ring-blue-300",
+          isSelected && "ring-1 ring-emerald-400",
         )}
         style={
           isSleeper
             ? {
-                // Rotate the sleeper 90° visually.
-                // The grid cell stays the same size; we rotate the button inside it
-                // and swap its width/height so it fills the cell correctly.
                 width: "100%",
                 height: "100%",
                 transform: "rotate(90deg)",
-                // Scale to fit the rotated shape within the grid cell
-                // After rotating a wide rectangle, it needs to fit in the original bounding box
                 transformOrigin: "center center",
               }
             : { width: "100%", height: "100%" }
@@ -116,25 +111,25 @@ export const SeatCard = memo(function SeatCard({
         {/* Seater: Backrest indicator */}
         {isSeater && (
           <div className={cn(
-            "absolute inset-x-0 top-0 h-[3px] rounded-t-lg transition-colors duration-200",
-            isSelected ? "bg-blue-400" : effectiveStatus === "booked" ? "bg-gray-300" : "bg-green-300"
+            "absolute inset-x-0 top-0 h-[2.5px] rounded-t-lg transition-colors duration-200",
+            isSelected ? "bg-emerald-400" : effectiveStatus === "booked" ? "bg-slate-300" : "bg-emerald-300"
           )} />
         )}
 
-        {/* Sleeper: Pillow indicator (always at the "top" of the rotated berth, which is visually the left after rotation) */}
+        {/* Sleeper: Pillow indicator */}
         {isSleeper && (
           <div className={cn(
-            "absolute inset-x-[3px] top-[3px] h-[6px] rounded-sm transition-colors duration-200",
-            isSelected ? "bg-blue-300/60" : effectiveStatus === "booked" ? "bg-gray-200" : "bg-green-200/60"
+            "absolute inset-x-[2px] top-[2px] h-[5px] rounded-xs transition-colors duration-200",
+            isSelected ? "bg-emerald-300/80" : effectiveStatus === "booked" ? "bg-slate-300/60" : "bg-emerald-200/80"
           )} />
         )}
 
-        {/* Seat number — counter-rotated to stay upright and readable */}
+        {/* Seat number */}
         <span
           className={cn(
-            "relative z-10 truncate font-semibold leading-none",
-            isSeater && "text-[9px]",
-            isSleeper && "text-[8px]",
+            "relative z-10 truncate font-bold leading-none tracking-tight",
+            isSeater && "text-[8.5px]",
+            isSleeper && "text-[7.5px]",
           )}
           style={isSleeper ? { transform: "rotate(-90deg)" } : undefined}
         >

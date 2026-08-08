@@ -69,7 +69,7 @@ export default function PaymentPage() {
     setIsProcessing(true);
     // Simulate processing delay
     await new Promise((r) => setTimeout(r, 2500));
-    router.push(`/buses/${busId}/confirmation`);
+    router.push(`/buses/${encodeURIComponent(busId)}/confirmation`);
   };
 
   if (!isReady || selectedSeats.length === 0) return null;

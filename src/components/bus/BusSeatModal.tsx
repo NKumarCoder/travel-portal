@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useBusBookingStore } from "@/store/bus-booking-store";
 import { selectBus, type ApiSelectSeat } from "@/services/busSelectService";
@@ -50,6 +51,8 @@ import {
  * Everything fits in 90vh without excessive scrolling.
  */
 export function BusSeatModal() {
+  const router = useRouter();
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const {
     isSeatModalOpen,
     seatModalBus: bus,
@@ -79,6 +82,7 @@ export function BusSeatModal() {
   // Load Bus Select API when modal opens
   React.useEffect(() => {
     if (!isSeatModalOpen || !bus) return;
+    setIsProcessing(false);
 
     async function loadSeatData() {
       if (!bus) return;
@@ -168,9 +172,10 @@ export function BusSeatModal() {
   };
 
   const handleContinue = () => {
-    if (isValid()) {
-      debugLog("CONTINUE_BOOKING_FROM_MODAL", { busId: bus?.id, seats: selectedSeats.length, total: getTotalAmount() }, "success");
-      closeSeatModal();
+    if (isValid() && bus) {
+      setIsProcessing(true);
+      debugLog("CONTINUE_BOOKING_FROM_MODAL", { busId: bus.id, seats: selectedSeats.length, total: getTotalAmount() }, "success");
+      router.push(`/buses/${encodeURIComponent(bus.id)}/travellers`);
     }
   };
 
@@ -195,54 +200,55 @@ export function BusSeatModal() {
       <div
         ref={modalRef}
         className={cn(
-          "relative z-10 flex flex-col overflow-hidden bg-white shadow-2xl",
-          "hidden md:flex md:h-[90vh] md:w-[92vw] md:max-w-[1360px] md:rounded-2xl",
+          "relative z-10 flex flex-col overflow-hidden bg-white shadow-2xl transition-all duration-200",
+          "hidden md:flex md:h-[84vh] md:w-[86vw] md:max-w-[1140px] md:rounded-2xl",
         )}
       >
-        {/* ─── Header: compact ─── */}
-        <header className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-50">
-              <BusIcon className="h-4 w-4 text-green-600" />
+        {/* ─── Header: ultra-compact ─── */}
+        <header className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-2 bg-slate-900 text-white">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <BusIcon className="h-3.5 w-3.5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-gray-900">{bus.operator}</h2>
-                <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-gray-500">
+                <h2 className="text-xs sm:text-sm font-extrabold text-white">{bus.operator}</h2>
+                <span className="rounded bg-slate-800 border border-slate-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-300">
                   {bus.busType.replace("_", " ")}
                 </span>
                 {bus.rating > 0 && (
-                  <div className="flex items-center gap-0.5">
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                    <span className="text-[10px] font-medium text-gray-500">{bus.rating}</span>
+                  <div className="flex items-center gap-0.5 text-amber-400">
+                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                    <span className="text-[10px] font-bold text-amber-300">{bus.rating}</span>
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2.5 text-[10px] text-gray-400">
+              <div className="flex items-center gap-2 text-[10px] text-slate-300 mt-0.5">
                 {bus.departure.city && <span>{bus.departure.city} → {bus.arrival.city}</span>}
-                {bus.duration && <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" />{bus.duration}</span>}
+                {bus.duration && <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5 text-slate-400" />{bus.duration}</span>}
                 {bus.departure.time && <span>{bus.departure.time} – {bus.arrival.time}</span>}
-                <span className="flex items-center gap-0.5"><Users className="h-2.5 w-2.5" />{bus.seatsAvailable}</span>
+                <span className="flex items-center gap-0.5"><Users className="h-2.5 w-2.5 text-slate-400" />{bus.seatsAvailable} available</span>
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={closeSeatModal} aria-label="Close" className="h-7 w-7">
+
+          {/* Stepper positioned in header */}
+          <div className="flex-1 flex justify-center max-w-lg mx-4">
+            <ProgressStepper seatsSelected={selectedSeats.length} pointsSelected={pointsSelected} className="w-full" />
+          </div>
+
+          <Button variant="ghost" size="icon" onClick={closeSeatModal} aria-label="Close" className="h-7 w-7 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg">
             <X className="h-4 w-4" />
           </Button>
         </header>
-
-        {/* ─── Progress Stepper ─── */}
-        <div className="shrink-0 border-b border-gray-100 px-5 py-2">
-          <ProgressStepper seatsSelected={selectedSeats.length} pointsSelected={pointsSelected} />
-        </div>
 
         {/* ─── Body ─── */}
         <div className="flex flex-1 overflow-hidden">
           {isLoading && (
             <div className="flex flex-1 items-center justify-center">
               <div className="flex flex-col items-center gap-2">
-                <Loader2 className="h-7 w-7 animate-spin text-green-600" />
-                <p className="text-xs text-gray-400">Loading seat layout...</p>
+                <Loader2 className="h-7 w-7 animate-spin text-emerald-600" />
+                <p className="text-xs text-slate-400">Loading seat layout...</p>
               </div>
             </div>
           )}
@@ -274,6 +280,7 @@ export function BusSeatModal() {
               valid={valid}
               pointsSelected={pointsSelected}
               onContinue={handleContinue}
+              isProcessing={isProcessing}
             />
           )}
         </div>
@@ -294,6 +301,7 @@ export function BusSeatModal() {
         valid={valid}
         onClose={closeSeatModal}
         onContinue={handleContinue}
+        isProcessing={isProcessing}
       />
     </div>
   );
@@ -317,6 +325,7 @@ function ModalContent({
   valid,
   pointsSelected,
   onContinue,
+  isProcessing,
 }: {
   rawSeats: RawApiSeat[];
   boardingPoints: BusBoardingPoint[];
@@ -333,6 +342,7 @@ function ModalContent({
   valid: boolean;
   pointsSelected: boolean;
   onContinue: () => void;
+  isProcessing: boolean;
 }) {
   const { layout, activeDeck, setActiveDeck, zoom, setZoom, hasMultipleDecks } = useSeatLayout(rawSeats);
   const allSeats = React.useMemo(() => layout.decks.flatMap((d) => d.seats), [layout.decks]);
@@ -348,17 +358,17 @@ function ModalContent({
   return (
     <div className="flex flex-1 overflow-hidden">
       {/* ─── Left: Seats + Boarding/Dropping ─── */}
-      <div className="flex flex-1 flex-col overflow-y-auto">
+      <div className="flex flex-1 flex-col overflow-y-auto min-h-0">
         {/* Seat area */}
-        <div className="px-5 pt-3 pb-2">
+        <div className="px-4 pt-2.5 pb-2">
           {/* Controls row */}
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-1.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="rounded-md bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700 border border-green-100">
+              <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-100/80">
                 {getBusLayoutLabel(layout.busLayoutType)}
               </span>
-              <span className="text-[10px] text-gray-400">
-                <span className="font-medium text-gray-600">{layout.availableSeats}</span> available
+              <span className="text-[10px] text-slate-400">
+                <span className="font-bold text-slate-700">{layout.availableSeats}</span> available
               </span>
               {hasMultipleDecks && (
                 <DeckTabs decks={layout.decks} activeDeck={activeDeck} onDeckChange={setActiveDeck} />
@@ -383,11 +393,11 @@ function ModalContent({
         </div>
 
         {/* ─── Boarding / Route / Dropping ─── */}
-        <div className="border-t border-gray-100 px-5 py-3">
-          <div className="grid grid-cols-[1fr_auto_1fr] gap-2">
+        <div className="border-t border-slate-100 px-4 py-2.5 mt-auto">
+          <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-start">
             {/* Boarding */}
-            <div className="max-h-[200px] overflow-y-auto pr-1">
-              <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400">Boarding</p>
+            <div className="min-w-0 pr-1">
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">Boarding</p>
               <BoardingDroppingSelector
                 boardingPoints={boardingPoints}
                 droppingPoints={[]}
@@ -396,14 +406,16 @@ function ModalContent({
             </div>
 
             {/* Route preview */}
-            <RoutePreview
-              source={bus.departure.city}
-              destination={bus.arrival.city}
-            />
+            <div className="pt-6">
+              <RoutePreview
+                source={bus.departure.city}
+                destination={bus.arrival.city}
+              />
+            </div>
 
             {/* Dropping */}
-            <div className="max-h-[200px] overflow-y-auto pl-1">
-              <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400">Dropping</p>
+            <div className="min-w-0 pl-1">
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">Dropping</p>
               <BoardingDroppingSelector
                 boardingPoints={[]}
                 droppingPoints={droppingPoints}
@@ -414,22 +426,22 @@ function ModalContent({
         </div>
       </div>
 
-      {/* ─── Right: Sticky Summary ─── */}
-      <aside className="w-[260px] shrink-0 border-l border-gray-100 bg-gray-50/50 overflow-y-auto">
-        <div className="p-4 space-y-3">
-          <h3 className="text-xs font-bold text-gray-900">Booking Summary</h3>
+      {/* ─── Right: Sticky Summary (~220px) ─── */}
+      <aside className="w-[220px] shrink-0 border-l border-slate-100 bg-slate-50/70 overflow-y-auto">
+        <div className="p-3 space-y-2.5">
+          <h3 className="text-xs font-extrabold text-slate-900">Booking Summary</h3>
 
           {/* Selected seats */}
           {selectedSeats.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 Seats ({selectedSeats.length}/6)
               </p>
               <div className="flex flex-wrap gap-1">
                 {selectedSeats.map((s) => (
-                  <span key={s.seatNo} className="inline-flex items-center gap-0.5 rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
+                  <span key={s.seatNo} className="inline-flex items-center gap-0.5 rounded-md bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
                     {s.seatNo}
-                    <button type="button" onClick={() => removeSeat(s.seatNo)} className="ml-0.5 rounded-full p-0.5 hover:bg-blue-100" aria-label={`Remove ${s.seatNo}`}>
+                    <button type="button" onClick={() => removeSeat(s.seatNo)} className="ml-0.5 rounded-full p-0.5 hover:bg-emerald-100" aria-label={`Remove ${s.seatNo}`}>
                       <X className="h-2.5 w-2.5" />
                     </button>
                   </span>
@@ -437,37 +449,37 @@ function ModalContent({
               </div>
             </div>
           ) : (
-            <div className="flex h-12 items-center justify-center rounded-lg border border-dashed border-gray-200">
-              <p className="text-[10px] text-gray-400">Select seats to continue</p>
+            <div className="flex h-10 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-white">
+              <p className="text-[10px] text-slate-400 font-medium">Select seats to continue</p>
             </div>
           )}
 
           {/* Fare breakdown */}
           {selectedSeats.length > 0 && (
-            <div className="space-y-1.5 border-t border-gray-200 pt-2.5">
+            <div className="space-y-1 border-t border-slate-200/80 pt-2">
               <FareRow label="Base Fare" value={baseFare} />
               <FareRow label="GST (5%)" value={taxes} />
               <FareRow label="Conv. Fee" value={convenienceFee} />
-              <div className="flex justify-between border-t border-gray-200 pt-1.5">
-                <span className="text-xs font-bold text-gray-900">Total</span>
-                <span className="text-sm font-bold text-gray-900">₹{total.toLocaleString("en-IN")}</span>
+              <div className="flex justify-between border-t border-slate-200/80 pt-1.5 mt-1">
+                <span className="text-xs font-extrabold text-slate-900">Total</span>
+                <span className="text-sm font-extrabold text-emerald-700">₹{total.toLocaleString("en-IN")}</span>
               </div>
             </div>
           )}
 
           {/* Points summary */}
           {(boardingPoint || droppingPoint) && (
-            <div className="space-y-1 border-t border-gray-200 pt-2.5">
+            <div className="space-y-1 border-t border-slate-200/80 pt-2">
               {boardingPoint && (
                 <div className="flex items-center gap-1.5 text-[10px]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                  <span className="text-gray-500 truncate">{boardingPoint.name}</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="text-slate-600 truncate font-medium">{boardingPoint.name}</span>
                 </div>
               )}
               {droppingPoint && (
                 <div className="flex items-center gap-1.5 text-[10px]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                  <span className="text-gray-500 truncate">{droppingPoint.name}</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                  <span className="text-slate-600 truncate font-medium">{droppingPoint.name}</span>
                 </div>
               )}
             </div>
@@ -475,15 +487,15 @@ function ModalContent({
 
           {/* Validation */}
           {selectedSeats.length > 0 && !valid && (
-            <div className="rounded-lg bg-amber-50 px-2.5 py-1.5 text-[10px] text-amber-700 border border-amber-100">
+            <div className="rounded-lg bg-amber-50 px-2 py-1 text-[10px] text-amber-800 border border-amber-200/80 font-medium">
               {!boardingPoint && <p>• Select boarding point</p>}
               {!droppingPoint && <p>• Select dropping point</p>}
             </div>
           )}
 
-          {/* Continue */}
-          <Button className="w-full h-9 text-xs font-semibold" disabled={!valid} onClick={onContinue}>
-            Continue Booking
+          {/* Continue CTA */}
+          <Button className="w-full h-8.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs cursor-pointer" disabled={!valid || isProcessing} onClick={onContinue}>
+            {isProcessing ? "Please wait..." : "Continue Booking"}
           </Button>
         </div>
       </aside>
@@ -516,6 +528,7 @@ function MobileSheet({
   valid,
   onClose,
   onContinue,
+  isProcessing,
 }: {
   bus: NonNullable<ReturnType<typeof useBusBookingStore.getState>["seatModalBus"]>;
   isLoading: boolean;
@@ -530,6 +543,7 @@ function MobileSheet({
   valid: boolean;
   onClose: () => void;
   onContinue: () => void;
+  isProcessing: boolean;
 }) {
   const { layout, activeDeck, setActiveDeck, zoom, setZoom, hasMultipleDecks } = useSeatLayout(rawSeats);
   const allSeats = React.useMemo(() => layout.decks.flatMap((d) => d.seats), [layout.decks]);
@@ -612,7 +626,9 @@ function MobileSheet({
               <p className="text-[10px] text-gray-400">{selectedSeats.length} seat{selectedSeats.length > 1 ? "s" : ""}</p>
               <p className="text-base font-bold text-gray-900">₹{total.toLocaleString("en-IN")}</p>
             </div>
-            <Button size="sm" disabled={!valid} onClick={onContinue}>Continue</Button>
+            <Button size="sm" disabled={!valid || isProcessing} onClick={onContinue}>
+              {isProcessing ? "Please wait..." : "Continue"}
+            </Button>
           </div>
         </div>
       )}

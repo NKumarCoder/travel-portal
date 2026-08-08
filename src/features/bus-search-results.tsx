@@ -121,12 +121,14 @@ export function BusSearchResults({
   }
 
   return (
-    <div className="pb-20">
-      {/* Sort bar */}
-      <SortBar resultCount={filteredBuses.length} className="mb-4" />
+    <div className="pb-24">
+      {/* Sort bar - Sticky relative to results scroll container */}
+      <div className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs pb-3 pt-0.5">
+        <SortBar resultCount={filteredBuses.length} />
+      </div>
 
       {/* Results list */}
-      <div className="space-y-3">
+      <div className="space-y-3.5">
         {filteredBuses.map((bus) => (
           <BusCard key={bus.id} bus={bus} />
         ))}
@@ -137,3 +139,4 @@ export function BusSearchResults({
     </div>
   );
 }
+

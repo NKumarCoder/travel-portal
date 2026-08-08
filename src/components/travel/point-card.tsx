@@ -35,27 +35,12 @@ export function PointCard({
   onSelect,
   onHover,
 }: PointCardProps) {
-  const [addressExpanded, setAddressExpanded] = React.useState(false);
-
-  // Expand address on hover
-  React.useEffect(() => {
-    if (isHovered) {
-      setAddressExpanded(true);
-    } else {
-      // Delay collapse for smooth animation
-      const timer = setTimeout(() => setAddressExpanded(false), 200);
-      return () => clearTimeout(timer);
-    }
-  }, [isHovered]);
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       onSelect(point);
     }
   };
-
-  const selectedColor = type === "boarding" ? "blue" : "blue";
 
   return (
     <button
@@ -65,18 +50,17 @@ export function PointCard({
       onMouseLeave={() => onHover(null)}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group relative flex w-full items-start gap-3 rounded-xl border-2 p-4 text-left",
-        "transition-all duration-250 ease-out",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+        "group relative flex w-full items-center gap-2.5 rounded-xl border p-2.5 px-3 text-left",
+        "transition-all duration-200 ease-out cursor-pointer min-h-[42px]",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1",
         // Selected state
-        isSelected && "border-blue-500 bg-blue-50/70 shadow-md",
+        isSelected && "border-emerald-500 bg-emerald-50/70 ring-1 ring-emerald-500/80 shadow-xs",
         // Hover state (only if not selected)
-        !isSelected && isHovered && "border-gray-400 bg-white shadow-lg scale-[1.02]",
+        !isSelected && isHovered && "border-slate-400 bg-white shadow-md scale-[1.01]",
         // Default state
-        !isSelected && !isHovered && "border-gray-200 bg-white shadow-sm",
+        !isSelected && !isHovered && "border-slate-200 bg-white shadow-2xs hover:border-slate-300",
         // Faded state (sibling is hovered)
         isFaded && !isSelected && "opacity-60",
-        // Restore opacity
         !isFaded && "opacity-100",
       )}
       role="radio"
@@ -86,59 +70,60 @@ export function PointCard({
       {/* Radio indicator */}
       <div
         className={cn(
-          "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200",
+          "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-[1.5px] transition-all duration-200",
           isSelected
-            ? "border-blue-500 bg-blue-500 scale-110"
-            : "border-gray-300 group-hover:border-gray-400"
+            ? "border-emerald-600 bg-emerald-600 scale-105"
+            : "border-slate-300 group-hover:border-slate-400 bg-white"
         )}
       >
         {isSelected && (
-          <div className="h-2 w-2 rounded-full bg-white" />
+          <div className="h-1.5 w-1.5 rounded-full bg-white" />
         )}
       </div>
 
-      {/* Content */}
-      <div className="min-w-0 flex-1">
-        {/* Name + Time */}
-        <div className="flex items-start justify-between gap-2">
-          <p
-            className={cn(
-              "font-medium text-gray-900 transition-all duration-250",
-              isHovered && !isSelected ? "text-base font-bold" : "text-sm font-semibold",
-              isSelected && "text-blue-900"
+      {/* Content — Horizontal composition */}
+      <div className="flex flex-1 items-center justify-between gap-2 min-w-0">
+        {/* Location & Address */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <p
+              className={cn(
+                "text-xs font-bold text-slate-900 truncate leading-tight",
+                isSelected && "text-emerald-950"
+              )}
+            >
+              {point.name}
+            </p>
+
+            {point.address && (
+              <span className="hidden sm:inline text-[10px] text-slate-400 font-normal truncate max-w-[140px]">
+                · {point.address}
+              </span>
             )}
-          >
-            {point.name}
-          </p>
+          </div>
 
-          {/* Time Badge */}
-          <TimeBadge time={point.time} isSelected={isSelected} />
-        </div>
-
-        {/* Address */}
-        <div
-          className={cn(
-            "mt-1.5 flex items-start gap-1 text-xs transition-all duration-250 ease-out",
-            isSelected ? "text-blue-700/80" : "text-gray-500"
+          {point.address && (
+            <div
+              className={cn(
+                "flex items-center gap-1 text-[10px] sm:hidden leading-tight mt-0.5",
+                isSelected ? "text-emerald-700/90" : "text-slate-500"
+              )}
+            >
+              <MapPin className="h-2.5 w-2.5 shrink-0 text-slate-400" />
+              <span className="truncate">{point.address}</span>
+            </div>
           )}
-        >
-          <MapPin className="mt-0.5 h-3 w-3 shrink-0" />
-          <span
-            className={cn(
-              "transition-all duration-250",
-              addressExpanded ? "" : "line-clamp-2"
-            )}
-          >
-            {point.address}
-          </span>
         </div>
+
+        {/* Time Badge */}
+        <TimeBadge time={point.time} isSelected={isSelected} />
       </div>
     </button>
   );
 }
 
 /**
- * TimeBadge — Displays departure/arrival time in a styled badge.
+ * TimeBadge — Displays departure/arrival time in a compact right-aligned pill.
  */
 function TimeBadge({ time, isSelected }: { time: string; isSelected: boolean }) {
   if (!time) return null;
@@ -146,13 +131,13 @@ function TimeBadge({ time, isSelected }: { time: string; isSelected: boolean }) 
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors duration-200",
+        "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold transition-colors duration-200 whitespace-nowrap",
         isSelected
-          ? "bg-blue-100 text-blue-700"
-          : "bg-gray-100 text-gray-600"
+          ? "bg-emerald-100 text-emerald-800 border border-emerald-200/80"
+          : "bg-slate-100 text-slate-700 border border-slate-200/60"
       )}
     >
-      <Clock className="h-3 w-3" />
+      <Clock className="h-2.5 w-2.5 text-slate-500 shrink-0" />
       {time}
     </span>
   );

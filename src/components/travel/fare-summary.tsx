@@ -15,6 +15,7 @@ interface FareSummaryProps {
 
 export function FareSummary({ busId, className }: FareSummaryProps) {
   const router = useRouter();
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const {
     selectedSeats,
     boardingPoint,
@@ -35,6 +36,7 @@ export function FareSummary({ busId, className }: FareSummaryProps) {
 
   const handleContinue = () => {
     if (valid) {
+      setIsProcessing(true);
       debugLog("CONTINUE_BOOKING", {
         busId,
         selectedSeats: selectedSeats.map((s) => s.seatNo),
@@ -42,8 +44,8 @@ export function FareSummary({ busId, className }: FareSummaryProps) {
         droppingPoint: droppingPoint?.name,
         totalAmount: total,
       }, "success");
-      debugNavigation(`/buses/${busId}`, `/buses/${busId}/travellers`);
-      router.push(`/buses/${busId}/travellers`);
+      debugNavigation(`/buses/${busId}`, `/buses/${encodeURIComponent(busId)}/travellers`);
+      router.push(`/buses/${encodeURIComponent(busId)}/travellers`);
     } else {
       const reasons: string[] = [];
       if (selectedSeats.length === 0) reasons.push("No seats selected");
@@ -140,10 +142,10 @@ export function FareSummary({ busId, className }: FareSummaryProps) {
         {/* Continue button */}
         <Button
           className="w-full"
-          disabled={!valid}
+          disabled={!valid || isProcessing}
           onClick={handleContinue}
         >
-          Continue Booking
+          {isProcessing ? "Please wait..." : "Continue Booking"}
         </Button>
       </div>
     </div>
@@ -153,12 +155,27 @@ export function FareSummary({ busId, className }: FareSummaryProps) {
 // Mobile bottom sticky fare summary
 export function MobileFareSummary({ busId }: { busId: string }) {
   const [expanded, setExpanded] = React.useState(false);
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const router = useRouter();
-  const { selectedSeats, getTotalAmount, isValid } = useBusBookingStore();
+  const { selectedSeats, getTotalAmount, isValid, boardingPoint, droppingPoint } = useBusBookingStore();
   const total = getTotalAmount();
   const valid = isValid();
 
   if (selectedSeats.length === 0) return null;
+
+  const handleContinue = () => {
+    if (valid) {
+      setIsProcessing(true);
+      debugLog("CONTINUE_BOOKING_MOBILE", {
+        busId,
+        selectedSeats: selectedSeats.map((s) => s.seatNo),
+        boardingPoint: boardingPoint?.name,
+        droppingPoint: droppingPoint?.name,
+        totalAmount: total,
+      }, "success");
+      router.push(`/buses/${encodeURIComponent(busId)}/travellers`);
+    }
+  };
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white shadow-lg lg:hidden">
@@ -183,13 +200,10 @@ export function MobileFareSummary({ busId }: { busId: string }) {
           <p className="text-lg font-bold text-gray-900">₹{total.toLocaleString("en-IN")}</p>
         </div>
         <Button
-          disabled={!valid}
-          onClick={() => {
-            console.log("Navigation to /travellers is temporarily disabled during Traveller module reset.");
-            // router.push(`/buses/${busId}/travellers`)
-          }}
+          disabled={!valid || isProcessing}
+          onClick={handleContinue}
         >
-          Continue
+          {isProcessing ? "Please wait..." : "Continue"}
         </Button>
       </div>
     </div>

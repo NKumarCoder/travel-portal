@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ComingSoonModal, type ComingSoonServiceType } from "@/components/common/coming-soon-modal";
 import {
   Plane,
   Hotel,
@@ -19,18 +20,36 @@ import {
   X,
 } from "lucide-react";
 
-const navLinks = [
+interface NavLinkItem {
+  href: string;
+  label: ComingSoonServiceType | "Flights" | "Hotels" | "Buses";
+  icon: React.ElementType;
+  isComingSoon?: boolean;
+}
+
+const navLinks: NavLinkItem[] = [
   { href: "/flights", label: "Flights", icon: Plane },
   { href: "/hotels", label: "Hotels", icon: Hotel },
   { href: "/buses", label: "Buses", icon: Bus },
-  { href: "/activities", label: "Activities", icon: Compass },
-  { href: "/packages", label: "Packages", icon: Package },
-  { href: "/ai-planner", label: "AI Planner", icon: Sparkles },
+  { href: "/activities", label: "Activities", icon: Compass, isComingSoon: true },
+  { href: "/packages", label: "Packages", icon: Package, isComingSoon: true },
+  { href: "/ai-planner", label: "AI Planner", icon: Sparkles, isComingSoon: true },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [comingSoonService, setComingSoonService] = React.useState<ComingSoonServiceType>(null);
+
+  const handleNavClick = (
+    e: React.MouseEvent,
+    item: NavLinkItem
+  ) => {
+    if (item.isComingSoon) {
+      e.preventDefault();
+      setComingSoonService(item.label as ComingSoonServiceType);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
@@ -38,7 +57,7 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600">
               <Compass className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">TravelAI</span>
@@ -46,21 +65,35 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
-            {navLinks.map(({ href, label, icon: Icon }) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  pathname === href
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </Link>
-            ))}
+            {navLinks.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                !item.isComingSoon &&
+                (pathname === item.href ||
+                  (item.href !== "/" && pathname.startsWith(item.href + "/")));
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item)}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer",
+                    isActive
+                      ? "bg-emerald-50 text-emerald-700 font-bold"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                  {item.isComingSoon && (
+                    <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.2 rounded-md uppercase tracking-wider ml-0.5">
+                      SOON
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right section */}
@@ -101,29 +134,49 @@ export function Navbar() {
       {isMobileMenuOpen && (
         <nav className="border-t border-gray-200 bg-white p-4 lg:hidden" aria-label="Mobile navigation">
           <div className="space-y-1">
-            {navLinks.map(({ href, label, icon: Icon }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                  pathname === href
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                )}
-              >
-                <Icon className="h-5 w-5" />
-                {label}
-              </Link>
-            ))}
+            {navLinks.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                !item.isComingSoon &&
+                (pathname === item.href ||
+                  (item.href !== "/" && pathname.startsWith(item.href + "/")));
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => {
+                    handleNavClick(e, item);
+                    if (!item.isComingSoon) {
+                      setIsMobileMenuOpen(false);
+                    }
+                  }}
+                  className={cn(
+                    "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer",
+                    isActive
+                      ? "bg-emerald-50 text-emerald-700 font-bold"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.isComingSoon && (
+                    <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                      SOON
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
             <Link
               href="/my-trips"
               onClick={() => setIsMobileMenuOpen(false)}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 pathname === "/my-trips"
-                  ? "bg-blue-50 text-blue-700"
+                  ? "bg-emerald-50 text-emerald-700 font-bold"
                   : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               )}
             >
@@ -136,7 +189,7 @@ export function Navbar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 pathname === "/profile"
-                  ? "bg-blue-50 text-blue-700"
+                  ? "bg-emerald-50 text-emerald-700 font-bold"
                   : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               )}
             >
@@ -146,6 +199,13 @@ export function Navbar() {
           </div>
         </nav>
       )}
+
+      {/* Global Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={!!comingSoonService}
+        service={comingSoonService}
+        onClose={() => setComingSoonService(null)}
+      />
     </header>
   );
 }

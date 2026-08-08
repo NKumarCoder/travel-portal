@@ -18,6 +18,7 @@ import {
   ChevronDown,
   ChevronUp,
   Users,
+  ArrowRight,
 } from "lucide-react";
 
 interface BusCardProps {
@@ -36,161 +37,203 @@ export function BusCard({ bus }: BusCardProps) {
     return `$${price}`;
   };
 
+  const isAc = bus.busType.toLowerCase().includes("ac");
+  const isSleeper = bus.busType.toLowerCase().includes("sleeper");
+
   return (
-    <Card className={cn("p-0 transition-shadow hover:shadow-md", isInCompare && "ring-2 ring-blue-500")}>
+    <Card
+      className={cn(
+        "p-0 rounded-2xl border border-slate-200/90 bg-white transition-all duration-200 hover:shadow-md hover:border-slate-300 relative overflow-hidden",
+        isInCompare && "ring-2 ring-emerald-500 border-emerald-500"
+      )}
+    >
       {/* Main card content */}
-      <div className="p-4 md:p-5">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          {/* Operator info + Favorite */}
-          <div className="flex items-start justify-between md:w-48">
+      <div className="p-4 sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+          {/* Operator info + Badges */}
+          <div className="flex items-start justify-between lg:w-52">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-50">
-                <BusIcon className="h-5 w-5 text-green-600" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100/80">
+                <BusIcon className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-gray-900">
+                <p className="truncate text-base font-bold text-slate-900">
                   {bus.operator}
                 </p>
-                <div className="mt-0.5 flex items-center gap-2">
-                  <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-gray-600">
+                <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                  {/* Semantic Bus Type Pill */}
+                  <span
+                    className={cn(
+                      "rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide border",
+                      isAc && isSleeper
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : isAc
+                          ? "bg-blue-50 text-blue-700 border-blue-200"
+                          : "bg-slate-100 text-slate-700 border-slate-200"
+                    )}
+                  >
                     {bus.busType.replace("_", " ")}
                   </span>
-                  <div className="flex items-center gap-0.5">
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                    <span className="text-xs font-medium text-gray-600">
-                      {bus.rating}
-                    </span>
-                    <span className="text-[10px] text-gray-400">
-                      ({bus.reviewCount})
-                    </span>
-                  </div>
+
+                  {/* Rating Badge */}
+                  {bus.rating > 0 && (
+                    <div className="flex items-center gap-0.5 rounded bg-amber-50 px-1 py-0.5 text-amber-700">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <span className="text-xs font-bold">{bus.rating}</span>
+                      {bus.reviewCount > 0 && (
+                        <span className="text-[10px] text-amber-600/80">
+                          ({bus.reviewCount})
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-            {/* Favorite - visible on mobile next to operator */}
-            <div className="md:hidden">
+
+            {/* Favorite button (mobile layout) */}
+            <div className="lg:hidden">
               <FavoriteButton busId={bus.id} />
             </div>
           </div>
 
-          {/* Route & Time */}
-          <div className="flex flex-1 items-center justify-between gap-2 md:justify-center md:gap-4">
+          {/* Journey Timeline */}
+          <div className="flex flex-1 items-center justify-between gap-3 px-1 lg:justify-center lg:gap-6">
             {/* Departure */}
-            <div className="text-center">
-              <p className="text-lg font-bold text-gray-900">
+            <div className="text-left lg:text-center">
+              <p className="text-lg sm:text-xl font-extrabold text-slate-900">
                 {bus.departure.time}
               </p>
-              <p className="mt-0.5 text-xs text-gray-500 md:max-w-[120px] md:truncate">
+              <p className="mt-0.5 text-xs font-medium text-slate-500 max-w-[110px] truncate">
                 {bus.departure.city}
               </p>
             </div>
 
-            {/* Duration */}
-            <div className="flex flex-col items-center px-2">
-              <div className="flex items-center gap-1 text-xs font-medium text-gray-500">
-                <Clock className="h-3 w-3" />
+            {/* Journey Line & Duration */}
+            <div className="flex flex-col items-center flex-1 max-w-[140px]">
+              <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+                <Clock className="h-3 w-3 text-slate-400" />
                 {bus.duration}
               </div>
-              <div className="my-1.5 flex items-center">
-                <div className="h-[2px] w-8 bg-gray-300 md:w-14" />
-                <div className="h-2 w-2 rounded-full border-2 border-green-500 bg-white" />
-                <div className="h-[2px] w-8 bg-gray-300 md:w-14" />
+              <div className="my-1 flex items-center w-full justify-center">
+                <div className="h-[2px] w-full bg-slate-200" />
+                <div className="h-2 w-2 rounded-full border-2 border-emerald-500 bg-white shrink-0 -mx-1" />
+                <div className="h-[2px] w-full bg-slate-200" />
               </div>
             </div>
 
             {/* Arrival */}
-            <div className="text-center">
-              <p className="text-lg font-bold text-gray-900">
+            <div className="text-right lg:text-center">
+              <p className="text-lg sm:text-xl font-extrabold text-slate-900">
                 {bus.arrival.time}
               </p>
-              <p className="mt-0.5 text-xs text-gray-500 md:max-w-[120px] md:truncate">
+              <p className="mt-0.5 text-xs font-medium text-slate-500 max-w-[110px] truncate">
                 {bus.arrival.city}
               </p>
             </div>
           </div>
 
-          {/* Price & Favorite (desktop) */}
-          <div className="flex items-center justify-between border-t border-gray-100 pt-3 md:w-40 md:flex-col md:items-end md:gap-1.5 md:border-t-0 md:pt-0">
-            <div className="hidden md:block">
+          {/* Price & CTA Block */}
+          <div className="flex items-center justify-between border-t border-slate-100 pt-3 lg:w-44 lg:flex-col lg:items-end lg:gap-2 lg:border-t-0 lg:pt-0">
+            <div className="hidden lg:block">
               <FavoriteButton busId={bus.id} />
             </div>
-            <div className="text-right">
-              <p className="text-xl font-bold text-gray-900">
+
+            <div className="text-left lg:text-right">
+              <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                Starting from
+              </span>
+              <p className="text-xl font-extrabold text-slate-900">
                 {formatPrice(bus.price, bus.currency)}
               </p>
-              <p className="text-[10px] text-gray-500">per seat</p>
             </div>
-            <Button size="sm" className="mt-1" onClick={() => {
-              openSeatModal(bus);
-              debugLog("SELECT_SEATS_CLICKED", {
-                busId: bus.id,
-                operator: bus.operator,
-                route: `${bus.departure.city} → ${bus.arrival.city}`,
-                price: bus.price,
-                seatsAvailable: bus.seatsAvailable,
-              });
-            }}>
+
+            <Button
+              size="sm"
+              className="gap-1.5 px-4 font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs hover:shadow-emerald-600/20 transition-all cursor-pointer"
+              onClick={() => {
+                openSeatModal(bus);
+                debugLog("SELECT_SEATS_CLICKED", {
+                  busId: bus.id,
+                  operator: bus.operator,
+                  route: `${bus.departure.city} → ${bus.arrival.city}`,
+                  price: bus.price,
+                  seatsAvailable: bus.seatsAvailable,
+                });
+              }}
+            >
               Select Seats
+              <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
 
-        {/* Footer: Amenities, seats, compare, expand */}
-        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
-          {/* Amenities preview */}
-          <AmenitiesGrid amenities={bus.amenities} maxVisible={3} />
+        {/* Footer Info Row */}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
+          {/* Left: Compare checkbox & Amenities */}
+          <div className="flex items-center gap-4">
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={isInCompare}
+                onChange={() => toggleCompare(bus.id)}
+                disabled={!isInCompare && !canAddMore}
+                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer disabled:opacity-50"
+              />
+              <span className="text-xs font-medium text-slate-600">
+                {isInCompare ? "Added to compare" : "Compare"}
+              </span>
+            </label>
 
-          {/* Seats available */}
-          <span className="ml-auto flex items-center gap-1">
-            <Users className="h-3.5 w-3.5 text-gray-400" />
-            {bus.seatsAvailable <= 10 ? (
-              <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-medium text-orange-700">
-                {bus.seatsAvailable} seats left
-              </span>
-            ) : (
-              <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
-                {bus.seatsAvailable} available
-              </span>
+            {bus.amenities && bus.amenities.length > 0 && (
+              <>
+                <div className="hidden h-3.5 w-px bg-slate-200 sm:block" />
+                <AmenitiesGrid amenities={bus.amenities} maxVisible={3} />
+              </>
             )}
-          </span>
-        </div>
+          </div>
 
-        {/* Compare checkbox + View Details */}
-        <div className="mt-3 flex items-center justify-between">
-          <label className="flex cursor-pointer items-center gap-2">
-            <input
-              type="checkbox"
-              checked={isInCompare}
-              onChange={() => toggleCompare(bus.id)}
-              disabled={!isInCompare && !canAddMore}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
-            />
-            <span className="text-xs text-gray-600">
-              {isInCompare ? "Added to compare" : "Compare"}
+          {/* Right: Seats Left + View Details */}
+          <div className="flex items-center gap-3.5 ml-auto sm:ml-0">
+            <span className="flex items-center gap-1 text-xs">
+              <Users className="h-3.5 w-3.5 text-slate-400" />
+              {bus.seatsAvailable <= 10 ? (
+                <span className="rounded-full bg-amber-50 border border-amber-200/80 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                  {bus.seatsAvailable} seats left
+                </span>
+              ) : (
+                <span className="rounded-full bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                  {bus.seatsAvailable} available
+                </span>
+              )}
             </span>
-          </label>
 
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
-          >
-            {isExpanded ? "Hide Details" : "View Details"}
-            {isExpanded ? (
-              <ChevronUp className="h-3.5 w-3.5" />
-            ) : (
-              <ChevronDown className="h-3.5 w-3.5" />
-            )}
-          </button>
+            <div className="h-3.5 w-px bg-slate-200" />
+
+            <button
+              type="button"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 cursor-pointer"
+            >
+              {isExpanded ? "Hide Details" : "View Details"}
+              {isExpanded ? (
+                <ChevronUp className="h-3.5 w-3.5" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Expandable Details Section */}
       {isExpanded && (
-        <div className="border-t border-gray-100 px-4 pb-4 md:px-5 md:pb-5">
+        <div className="border-t border-slate-100 px-4 pb-4 sm:px-5 sm:pb-5 bg-slate-50/50">
           <BusDetailsTabs bus={bus} />
         </div>
       )}
     </Card>
   );
 }
+

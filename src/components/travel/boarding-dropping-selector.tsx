@@ -131,16 +131,16 @@ function PointColumn({
   return (
     <div className="flex flex-col" onKeyDown={handleKeyDown}>
       {/* Column header */}
-      <div className="mb-3 flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100">
+      <div className="mb-1.5 flex items-center gap-2">
+        <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100">
           {icon}
         </div>
         <div>
-          <h4 className="text-sm font-semibold text-gray-900">{title}</h4>
-          <p className="text-[11px] text-gray-400">{subtitle}</p>
+          <h4 className="text-xs font-bold text-slate-900">{title}</h4>
+          <p className="text-[10px] text-slate-400">{subtitle}</p>
         </div>
         {selectedId && (
-          <span className="ml-auto rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+          <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
             Selected
           </span>
         )}
@@ -152,14 +152,14 @@ function PointColumn({
           value={search}
           onChange={setSearch}
           placeholder={`Search ${type} points...`}
-          className="mb-3"
+          className="mb-2"
         />
       )}
 
       {/* Scrollable point list */}
       <div
         ref={listRef}
-        className="max-h-[500px] space-y-2 overflow-y-auto pr-1 scrollbar-thin"
+        className="max-h-[150px] space-y-1.5 overflow-y-auto pr-1 scrollbar-thin"
         role="radiogroup"
         aria-label={title}
       >

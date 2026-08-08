@@ -46,19 +46,19 @@ export function useBookingGuard(
           break;
         case "seats":
           if (selectedSeats.length === 0) {
-            redirectTo = `/buses/${busId}`;
+            redirectTo = `/buses/${encodeURIComponent(busId)}`;
             reason = "No seats selected";
           }
           break;
         case "boardingPoint":
           if (!boardingPoint) {
-            redirectTo = `/buses/${busId}`;
+            redirectTo = `/buses/${encodeURIComponent(busId)}`;
             reason = "No boarding point selected";
           }
           break;
         case "droppingPoint":
           if (!droppingPoint) {
-            redirectTo = `/buses/${busId}`;
+            redirectTo = `/buses/${encodeURIComponent(busId)}`;
             reason = "No dropping point selected";
           }
           break;
@@ -66,7 +66,7 @@ export function useBookingGuard(
           // Traveller form guard temporarily bypassed during Traveller module reset
           /*
           if (!isTravellerFormValid()) {
-            redirectTo = `/buses/${busId}/travellers`;
+            redirectTo = `/buses/${encodeURIComponent(busId)}/travellers`;
             reason = "Traveller details incomplete";
           }
           */
@@ -75,7 +75,7 @@ export function useBookingGuard(
           // Contact guard temporarily bypassed during Traveller module reset
           /*
           if (!isContactValid()) {
-            redirectTo = `/buses/${busId}/travellers`;
+            redirectTo = `/buses/${encodeURIComponent(busId)}/travellers`;
             reason = "Contact information incomplete";
           }
           */
