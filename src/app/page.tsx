@@ -333,7 +333,7 @@ export default function HomePage() {
               </div>
             </section>
 
-            {/* ===== 5. Why Choose TravelAI (Travel Benefits Section) ===== */}
+            {/* ===== 5. Why Choose Opti Travel (Travel Benefits Section) ===== */}
             <section className="rounded-3xl border border-slate-200/80 bg-slate-50/80 p-6 sm:p-10 shadow-xs relative overflow-hidden">
               {/* Ambient Glows */}
               <div className="absolute top-0 right-0 -mt-12 -mr-12 h-64 w-64 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
@@ -344,7 +344,7 @@ export default function HomePage() {
                   Trusted Travel Platform
                 </span>
                 <h2 className="text-xl font-extrabold text-slate-900 sm:text-2xl tracking-tight">
-                  Why Book with TravelAI
+                  Why Book with Opti Travel
                 </h2>
                 <p className="mt-1.5 text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
                   Enjoy intelligent recommendations, guaranteed best fares, and 24/7 dedicated travel concierge support
@@ -404,65 +404,6 @@ export default function HomePage() {
           </div>
         </main>
       </div>
-
-      {/* ===== 6. Global Application Footer ===== */}
-      <footer className="bg-slate-950 text-slate-400 border-t border-slate-800 text-xs">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5">
-            {/* Brand Info */}
-            <div className="lg:col-span-2 space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white font-bold">
-                  <Compass className="h-4 w-4" />
-                </div>
-                <span className="text-lg font-bold text-white tracking-tight">TravelAI</span>
-              </div>
-              <p className="text-slate-400 text-xs leading-relaxed max-w-sm font-medium">
-                AI-powered travel planning for modern explorers. Book flights, luxury hotels, and express buses seamlessly in one platform.
-              </p>
-            </div>
-
-            {/* Products */}
-            <div className="space-y-2.5">
-              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">Products</h4>
-              <ul className="space-y-1.5 font-medium">
-                <li><Link href="/flights" className="hover:text-white transition-colors">Flights</Link></li>
-                <li><Link href="/hotels" className="hover:text-white transition-colors">Hotels</Link></li>
-                <li><Link href="/buses" className="hover:text-white transition-colors">Buses</Link></li>
-                <li><span className="text-slate-500">Activities (Soon)</span></li>
-                <li><span className="text-slate-500">Packages (Soon)</span></li>
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div className="space-y-2.5">
-              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">Company</h4>
-              <ul className="space-y-1.5 font-medium">
-                <li><span className="hover:text-white transition-colors cursor-pointer">About Us</span></li>
-                <li><span className="hover:text-white transition-colors cursor-pointer">Careers</span></li>
-                <li><span className="hover:text-white transition-colors cursor-pointer">Press</span></li>
-                <li><span className="hover:text-white transition-colors cursor-pointer">Blog</span></li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div className="space-y-2.5">
-              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">Support</h4>
-              <ul className="space-y-1.5 font-medium">
-                <li><span className="hover:text-white transition-colors cursor-pointer">Help Center</span></li>
-                <li><span className="hover:text-white transition-colors cursor-pointer">Contact Us</span></li>
-                <li><span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span></li>
-                <li><span className="hover:text-white transition-colors cursor-pointer">Terms of Service</span></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-10 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500 font-medium">
-            <p>© 2026 TravelAI. All rights reserved.</p>
-            <p>Opti Travel Portal</p>
-          </div>
-        </div>
-      </footer>
 
       {/* Global Coming Soon Modal Interceptor */}
       <ComingSoonModal

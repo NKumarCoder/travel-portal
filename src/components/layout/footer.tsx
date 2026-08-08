@@ -36,7 +36,7 @@ export function Footer() {
                 <Compass className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-extrabold tracking-tight text-white">
-                Opti<span className="text-emerald-400">Travel</span>
+                Opti <span className="text-emerald-400">Travel</span>
               </span>
             </Link>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm font-medium">
@@ -99,7 +99,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 border-t border-slate-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
-          <p>© 2026 Opti Travel / TravelAI. All rights reserved.</p>
+          <p>© 2026 Opti Travel. All rights reserved.</p>
           <div className="flex items-center gap-6 text-slate-400 text-xs">
             <Link href="#" className="hover:text-emerald-400 transition-colors">Privacy</Link>
             <Link href="#" className="hover:text-emerald-400 transition-colors">Terms</Link>

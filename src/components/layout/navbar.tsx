@@ -90,7 +90,9 @@ export function Navbar() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600">
               <Compass className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">TravelAI</span>
+            <span className="text-xl font-extrabold tracking-tight text-gray-900">
+              Opti <span className="text-emerald-600">Travel</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

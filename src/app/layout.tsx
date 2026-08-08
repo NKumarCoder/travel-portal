@@ -9,7 +9,7 @@ import { AuthProvider } from "@/components/auth/auth-provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "TravelAI - AI-Powered Travel Platform",
+  title: "Opti Travel - AI-Powered Travel Platform",
   description:
     "Plan and book flights, hotels, buses, activities, and travel packages with AI-powered recommendations.",
 };

@@ -22,7 +22,7 @@ const SERVICE_DETAILS = {
   Packages: {
     title: "Packages Coming Soon",
     description:
-      "Curated travel packages are coming soon to TravelAI. We're working on something special for you.",
+      "Curated travel packages are coming soon to Opti Travel. We're working on something special for you.",
     icon: Package,
   },
   "AI Planner": {
