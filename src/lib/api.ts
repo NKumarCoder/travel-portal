@@ -3,13 +3,13 @@ import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { storeToken } from "@/services/auth/tokenManager";
 
 /**
- * API Base URLs — read from environment variables.
- * Set both variables in .env.local:
- *   NEXT_PUBLIC_API_BASE_URL       = http://46.62.206.214:1621  (all APIs except login)
- *   NEXT_PUBLIC_LOGIN_API_BASE_URL = http://46.62.206.214:1678  (login only)
+ * API Base URLs — browser uses relative HTTPS proxy paths to avoid Mixed Content errors.
+ * The server-side proxy routes forward requests to external backend HTTP servers:
+ *   General API Proxy: /api/backend  -> http://46.62.206.214:1621
+ *   Login API Proxy:   /api/auth/login -> http://46.62.206.214:1678/api/v1.0/user/login
  */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://46.62.206.214:1621";
-const LOGIN_API_BASE_URL = process.env.NEXT_PUBLIC_LOGIN_API_BASE_URL || "http://46.62.206.214:1678";
+const API_BASE_URL = "/api/backend";
+const LOGIN_API_BASE_URL = "/api/auth/login";
 
 const TOKEN_KEY = "bus_access_token";
 
