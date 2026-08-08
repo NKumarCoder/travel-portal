@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ComingSoonModal, type ComingSoonServiceType } from "@/components/common/coming-soon-modal";
@@ -38,16 +39,35 @@ const navLinks: NavLinkItem[] = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const ensureBusAuthentication = useAuthStore((state) => state.ensureBusAuthentication);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [comingSoonService, setComingSoonService] = React.useState<ComingSoonServiceType>(null);
+  const [isAuthenticatingBus, setIsAuthenticatingBus] = React.useState(false);
 
-  const handleNavClick = (
+  const handleNavClick = async (
     e: React.MouseEvent,
     item: NavLinkItem
   ) => {
     if (item.isComingSoon) {
       e.preventDefault();
       setComingSoonService(item.label as ComingSoonServiceType);
+      return;
+    }
+
+    if (item.label === "Buses") {
+      e.preventDefault();
+      if (isAuthenticatingBus) return;
+
+      try {
+        setIsAuthenticatingBus(true);
+        await ensureBusAuthentication();
+        router.push(item.href);
+      } catch (err) {
+        console.error("[Navbar] Bus authentication failed:", err);
+      } finally {
+        setIsAuthenticatingBus(false);
+      }
     }
   };
 

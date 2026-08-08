@@ -12,6 +12,7 @@ import { useSearchStore } from "@/store/search-store";
 import { useBusFilterStore } from "@/store/bus-filter-store";
 import { useBusSearchContextStore } from "@/store/bus-search-context-store";
 import { useBusBookingStore } from "@/store/bus-booking-store";
+import { useAuthStore } from "@/store/auth-store";
 import { searchBuses } from "@/services/busService";
 import { buildBusSearchPayload } from "@/services/payloadBuilders/busSearchPayload";
 import { debugLog } from "@/lib/debug";
@@ -67,6 +68,7 @@ export default function BusSearchPage() {
     clearSelectedBus(null);
 
     try {
+      await useAuthStore.getState().ensureBusAuthentication();
       const { buses: results, traceId } = await searchBuses({
         fromCity,
         toCity,

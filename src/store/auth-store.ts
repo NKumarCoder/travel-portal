@@ -4,6 +4,7 @@ import {
   login as authLogin,
   logout as authLogout,
   getAccessToken,
+  ensureBusAuthentication as authEnsureBusAuth,
 } from "@/services/authService";
 import { stopTokenScheduler } from "@/services/auth/authScheduler";
 
@@ -17,8 +18,10 @@ interface AuthState {
   /** The stored access token (persisted) */
   accessToken: string | null;
 
-  /** Perform silent login — called on app startup */
+  /** Perform silent login — called on demand */
   initialize: () => Promise<void>;
+  /** Ensure bus authentication on-demand */
+  ensureBusAuthentication: () => Promise<string>;
   /** Force logout and clear state */
   logout: () => void;
   /** Reset error state */
@@ -103,6 +106,39 @@ export const useAuthStore = create<AuthState>()(
         })();
 
         return initPromise;
+      },
+
+      ensureBusAuthentication: async () => {
+        const existingToken = getAccessToken();
+        if (existingToken) {
+          set({ authenticated: true, accessToken: existingToken });
+          return existingToken;
+        }
+
+        set({ loading: true, error: null });
+
+        try {
+          const token = await authEnsureBusAuth();
+          set({
+            authenticated: true,
+            accessToken: token,
+            loading: false,
+            error: null,
+          });
+          return token;
+        } catch (error: unknown) {
+          let message = "Authentication failed. Please try again.";
+          if (error instanceof Error) {
+            message = error.message;
+          }
+          set({
+            authenticated: false,
+            accessToken: null,
+            loading: false,
+            error: message,
+          });
+          throw error;
+        }
       },
 
       logout: () => {

@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
 import { SearchBox } from "@/components/ui/search-box";
 import { Button } from "@/components/ui/button";
 import { ComingSoonModal, type ComingSoonServiceType } from "@/components/common/coming-soon-modal";
@@ -115,19 +116,38 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [comingSoonService, setComingSoonService] = React.useState<ComingSoonServiceType>(null);
 
+  const ensureBusAuthentication = useAuthStore((state) => state.ensureBusAuthentication);
+  const [isAuthenticatingBus, setIsAuthenticatingBus] = React.useState(false);
+
   const handleSearchSubmit = () => {
     if (!searchQuery.trim()) return;
     // Default search routing to flights or buses search
     router.push("/flights/search");
   };
 
-  const handleCategoryClick = (
+  const handleCategoryClick = async (
     e: React.MouseEvent,
     service: (typeof CATEGORY_SERVICES)[number]
   ) => {
     if (service.isComingSoon) {
       e.preventDefault();
       setComingSoonService(service.label as ComingSoonServiceType);
+      return;
+    }
+
+    if (service.id === "buses") {
+      e.preventDefault();
+      if (isAuthenticatingBus) return;
+
+      try {
+        setIsAuthenticatingBus(true);
+        await ensureBusAuthentication();
+        router.push(service.href);
+      } catch (err) {
+        console.error("[HomePage] Bus authentication failed:", err);
+      } finally {
+        setIsAuthenticatingBus(false);
+      }
     }
   };
 

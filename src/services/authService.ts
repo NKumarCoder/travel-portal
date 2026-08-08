@@ -166,3 +166,33 @@ export function getAccessToken(): string | null {
 export function isAuthenticated(): boolean {
   return !!getAccessToken();
 }
+
+let busAuthPromise: Promise<string> | null = null;
+
+/**
+ * Ensures valid authentication for Bus services.
+ * Checks if a valid token already exists. If not, performs login on-demand.
+ * Prevents concurrent duplicate login requests.
+ */
+export async function ensureBusAuthentication(): Promise<string> {
+  const existingToken = getAccessToken();
+  if (existingToken) {
+    return existingToken;
+  }
+
+  if (busAuthPromise) {
+    return busAuthPromise;
+  }
+
+  busAuthPromise = (async () => {
+    try {
+      const token = await login();
+      return token;
+    } finally {
+      busAuthPromise = null;
+    }
+  })();
+
+  return busAuthPromise;
+}
+
