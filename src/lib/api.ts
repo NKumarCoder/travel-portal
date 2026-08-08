@@ -8,8 +8,8 @@ import { storeToken } from "@/services/auth/tokenManager";
  *   NEXT_PUBLIC_API_BASE_URL       = http://46.62.206.214:1621  (all APIs except login)
  *   NEXT_PUBLIC_LOGIN_API_BASE_URL = http://46.62.206.214:1678  (login only)
  */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-const LOGIN_API_BASE_URL = process.env.NEXT_PUBLIC_LOGIN_API_BASE_URL || API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://46.62.206.214:1621";
+const LOGIN_API_BASE_URL = process.env.NEXT_PUBLIC_LOGIN_API_BASE_URL || "http://46.62.206.214:1678";
 
 const TOKEN_KEY = "bus_access_token";
 

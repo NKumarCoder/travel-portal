@@ -126,17 +126,10 @@ export async function searchBuses(input: BusSearchInput): Promise<BusSearchResul
   const token = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
   const requestUrl = `${API_BASE_URL}/api/bus/search`;
 
-  if (process.env.NODE_ENV === "development") {
-    console.log("========== BUS SEARCH REQUEST ==========");
-    console.log("URL:", requestUrl);
-    console.log("Method: POST");
-    console.log("Headers:");
-    console.log("  Authorization: Bearer", token ? `${token.substring(0, 20)}...` : "MISSING");
-    console.log("  Content-Type: application/json");
-    console.log("Payload:");
-    console.log(JSON.stringify(payload, null, 2));
-    console.log("========================================");
-  }
+  console.log("[API DEBUG] BUS API REQUEST");
+  console.log("[API DEBUG] General API base URL:", API_BASE_URL);
+  console.log("[API DEBUG] URL:", requestUrl);
+  console.log("[API DEBUG] Authorization token present:", !!token);
 
   try {
     const { data, status, headers } = await apiClient.post<ApiBusSearchResponse>(

@@ -14,6 +14,11 @@ import { startTokenScheduler, stopTokenScheduler } from "@/services/auth";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { authenticated } = useAuthStore();
 
+  useEffect(() => {
+    console.log("[ENV DEBUG] Application environment initialized");
+    console.log("[ENV DEBUG] NODE_ENV:", process.env.NODE_ENV);
+  }, []);
+
   // Start/stop token scheduler based on auth state
   useEffect(() => {
     if (authenticated) {

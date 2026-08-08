@@ -57,14 +57,24 @@ export function Navbar() {
 
     if (item.label === "Buses") {
       e.preventDefault();
-      if (isAuthenticatingBus) return;
+      console.log("[BUS DEBUG] ========================================");
+      console.log("[BUS DEBUG] BUSES CLICKED (Navbar)");
+      console.log("[BUS DEBUG] Current pathname:", pathname);
+      console.log("[BUS DEBUG] Timestamp:", new Date().toISOString());
+      console.log("[BUS DEBUG] ========================================");
+
+      if (isAuthenticatingBus) {
+        console.log("[AUTH DEBUG] Login request already in progress — ignoring click");
+        return;
+      }
 
       try {
         setIsAuthenticatingBus(true);
         await ensureBusAuthentication();
         router.push(item.href);
       } catch (err) {
-        console.error("[Navbar] Bus authentication failed:", err);
+        console.error("[AUTH DEBUG] LOGIN FAILED");
+        console.error("[AUTH DEBUG] Error:", err);
       } finally {
         setIsAuthenticatingBus(false);
       }
