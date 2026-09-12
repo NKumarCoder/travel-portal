@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
+import { ensureFlightAuthentication } from "@/services/flightAuthService";
 import { SearchBox } from "@/components/ui/search-box";
 import { Button } from "@/components/ui/button";
 import { ComingSoonModal, type ComingSoonServiceType } from "@/components/common/coming-soon-modal";
@@ -118,6 +119,7 @@ export default function HomePage() {
 
   const ensureBusAuthentication = useAuthStore((state) => state.ensureBusAuthentication);
   const [isAuthenticatingBus, setIsAuthenticatingBus] = React.useState(false);
+  const [isAuthenticatingFlight, setIsAuthenticatingFlight] = React.useState(false);
 
   const handleSearchSubmit = () => {
     if (!searchQuery.trim()) return;
@@ -132,6 +134,26 @@ export default function HomePage() {
     if (service.isComingSoon) {
       e.preventDefault();
       setComingSoonService(service.label as ComingSoonServiceType);
+      return;
+    }
+
+    if (service.id === "flights") {
+      e.preventDefault();
+      if (isAuthenticatingFlight) {
+        console.log("[FLIGHT AUTH] Login request already in progress — ignoring click");
+        return;
+      }
+
+      try {
+        setIsAuthenticatingFlight(true);
+        await ensureFlightAuthentication();
+        router.push(service.href);
+      } catch (err) {
+        console.error("[FLIGHT AUTH] LOGIN FAILED");
+        console.error("[FLIGHT AUTH] Error:", err);
+      } finally {
+        setIsAuthenticatingFlight(false);
+      }
       return;
     }
 

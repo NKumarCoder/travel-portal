@@ -29,6 +29,8 @@ export interface FlightFilterState {
   hasActiveFilters: () => boolean;
 }
 
+const DEFAULT_MAX_FLIGHT_PRICE = 100000;
+
 const initialFilterState = {
   stops: [],
   airlines: [],
@@ -36,7 +38,7 @@ const initialFilterState = {
   cabinClasses: [],
   refundableOnly: false,
   checkinBaggageOnly: false,
-  priceRange: [0, 2500] as [number, number],
+  priceRange: [0, DEFAULT_MAX_FLIGHT_PRICE] as [number, number],
   sortBy: "recommended" as FlightSortOption,
 };
 
@@ -87,7 +89,7 @@ export const useFlightFilterStore = create<FlightFilterState>((set, get) => ({
       cabinClasses: [],
       refundableOnly: false,
       checkinBaggageOnly: false,
-      priceRange: [0, 2500],
+      priceRange: [0, DEFAULT_MAX_FLIGHT_PRICE],
       sortBy: "recommended",
     }),
 
@@ -101,7 +103,7 @@ export const useFlightFilterStore = create<FlightFilterState>((set, get) => ({
       s.refundableOnly ||
       s.checkinBaggageOnly ||
       s.priceRange[0] > 0 ||
-      s.priceRange[1] < 2500 ||
+      s.priceRange[1] < DEFAULT_MAX_FLIGHT_PRICE ||
       s.sortBy !== "recommended"
     );
   },

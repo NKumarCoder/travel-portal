@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { useFlightFilterStore } from "@/store/flight-filter-store";
+import { useFlightFilterStore, type FlightSortOption } from "@/store/flight-filter-store";
 import { cn } from "@/lib/utils";
-import { Filter, RotateCcw, Plane, Clock, Luggage, ShieldCheck } from "lucide-react";
+import { Filter, RotateCcw, Plane, Clock, Luggage, ShieldCheck, ArrowUpDown } from "lucide-react";
 
 interface FlightFilterSidebarProps {
   availableAirlines?: string[];
@@ -22,6 +22,7 @@ export function FlightFilterSidebar({
     refundableOnly,
     checkinBaggageOnly,
     priceRange,
+    sortBy,
     toggleStop,
     toggleAirline,
     toggleDepartureTime,
@@ -29,6 +30,7 @@ export function FlightFilterSidebar({
     setRefundableOnly,
     setCheckinBaggageOnly,
     setPriceRange,
+    setSortBy,
     resetFilters,
     hasActiveFilters,
   } = useFlightFilterStore();
@@ -60,19 +62,41 @@ export function FlightFilterSidebar({
         )}
       </div>
 
-      {/* 1. Price Range */}
+      {/* 0. Sort By */}
       <div className="space-y-2">
+        <label htmlFor="filter-sort-by" className="font-extrabold text-slate-900 block">
+          Sort By
+        </label>
+        <div className="relative">
+          <select
+            id="filter-sort-by"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as FlightSortOption)}
+            className="w-full h-9 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white px-3 pr-8 text-xs font-bold text-slate-800 shadow-2xs hover:border-slate-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer appearance-none transition-all"
+          >
+            <option value="recommended">Recommended</option>
+            <option value="cheapest">Price: Low to High</option>
+            <option value="fastest">Duration: Shortest</option>
+            <option value="earliest">Departure: Earliest</option>
+            <option value="latest">Departure: Latest</option>
+          </select>
+          <ArrowUpDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+        </div>
+      </div>
+
+      {/* 1. Price Range */}
+      <div className="space-y-2 pt-2 border-t border-slate-100">
         <div className="flex items-center justify-between">
           <span className="font-extrabold text-slate-900">Price Per Person</span>
           <span className="font-bold text-emerald-600 text-[11px]">
-            ${priceRange[0]} - ${priceRange[1]}+
+            ₹{priceRange[0].toLocaleString("en-IN")} - ₹{priceRange[1].toLocaleString("en-IN")}
           </span>
         </div>
         <input
           type="range"
           min={0}
-          max={2500}
-          step={50}
+          max={100000}
+          step={1000}
           value={priceRange[1]}
           onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
           className="w-full accent-emerald-600 cursor-pointer h-1.5 bg-slate-100 rounded-lg"

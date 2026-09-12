@@ -4,11 +4,12 @@ import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { SearchBox } from "@/components/ui/search-box";
+import { AirportAutocomplete } from "@/components/ui/airport-autocomplete";
 import { DatePicker } from "@/components/ui/date-picker";
 import { PassengerSelector } from "@/components/ui/passenger-selector";
 import { Button } from "@/components/ui/button";
 import { useSearchStore } from "@/store/search-store";
+import { ensureFlightAuthentication } from "@/services/flightAuthService";
 import {
   Plane,
   ArrowRightLeft,
@@ -17,13 +18,14 @@ import {
   ShieldCheck,
   Headphones,
   Compass,
-  Sparkles,
-  MapPin,
   Award,
   Zap,
   ArrowRight,
   Globe,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
+import { searchFlights } from "@/services/flightSearchService";
 
 // Popular Flight Routes Data
 const POPULAR_FLIGHT_ROUTES = [
@@ -78,27 +80,113 @@ export default function FlightsLandingPage() {
   const {
     from,
     to,
+    tripType,
+    fromAirport,
+    toAirport,
     departDate,
+    returnDate,
     passengers,
     travelClass,
+    isSearching,
     setFrom,
     setTo,
+    setTripType,
+    setFromAirport,
+    setToAirport,
     setDepartDate,
+    setReturnDate,
     setPassengers,
     setTravelClass,
+    setIsSearching,
+    setOnwardFlightResults,
+    setReturnFlightResults,
+    setFlightTraceId,
+    setFlightSearchError,
     swapFromTo,
     setHasSearched,
   } = useSearchStore();
 
-  const handleSearch = () => {
-    setHasSearched(true);
-    router.push("/flights/search");
+  const [validationError, setValidationError] = React.useState<string | null>(null);
+
+  // Ensure valid Flight session on mount
+  React.useEffect(() => {
+    ensureFlightAuthentication().catch((err) => {
+      console.error("[FLIGHT INIT] Unable to ensure flight authentication:", err);
+    });
+  }, []);
+
+  const handleSearch = async () => {
+    setValidationError(null);
+    setFlightSearchError(null);
+
+    // Form Validation
+    if (!fromAirport?.airportCode) {
+      setValidationError("Please select a departure airport (From).");
+      return;
+    }
+    if (!toAirport?.airportCode) {
+      setValidationError("Please select an arrival destination airport (To).");
+      return;
+    }
+    if (fromAirport.airportCode.toUpperCase() === toAirport.airportCode.toUpperCase()) {
+      setValidationError("Departure and destination airports cannot be the same.");
+      return;
+    }
+    if (!departDate) {
+      setValidationError("Please select a departure date.");
+      return;
+    }
+    if (tripType === "roundTrip") {
+      if (!returnDate) {
+        setValidationError("Please select a return date for Round Trip.");
+        return;
+      }
+      if (new Date(returnDate) < new Date(departDate)) {
+        setValidationError("Return date cannot be earlier than departure date.");
+        return;
+      }
+    }
+    if ((passengers.adults || 0) < 1) {
+      setValidationError("At least 1 adult passenger is required.");
+      return;
+    }
+
+    setIsSearching(true);
+
+    try {
+      const { onwardResults, returnResults, traceId } = await searchFlights({
+        fromAirport,
+        toAirport,
+        departDate,
+        returnDate: tripType === "roundTrip" ? returnDate : undefined,
+        tripType,
+        passengers,
+        travelClass,
+      });
+
+      setOnwardFlightResults(onwardResults);
+      setReturnFlightResults(returnResults);
+      setFlightTraceId(traceId);
+      setHasSearched(true);
+
+      router.push("/flights/search");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Flight search failed. Please try again.";
+      setValidationError(msg);
+      setFlightSearchError(msg);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleQuickDestination = (destCity: string) => {
     setTo(destCity);
-    setHasSearched(true);
-    router.push("/flights/search");
+    setToAirport({
+      airportCode: "",
+      city: destCity,
+      airportDesc: `${destCity} Airport`,
+      country: "",
+    });
   };
 
   return (
@@ -150,15 +238,58 @@ export default function FlightsLandingPage() {
       {/* ===== 2. Floating White Search Surface ===== */}
       <section className="-mt-16 sm:-mt-20 lg:-mt-24 relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-3.5 sm:p-5 shadow-xl shadow-slate-950/15">
+          {/* Trip Type Toggle Tabs */}
+          <div className="flex items-center gap-2 mb-3.5">
+            <button
+              type="button"
+              onClick={() => setTripType("oneWay")}
+              className={cn(
+                "rounded-full px-4 py-1 text-xs font-extrabold transition-all duration-150 cursor-pointer",
+                tripType === "oneWay"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              )}
+            >
+              One Way
+            </button>
+            <button
+              type="button"
+              onClick={() => setTripType("roundTrip")}
+              className={cn(
+                "rounded-full px-4 py-1 text-xs font-extrabold transition-all duration-150 cursor-pointer",
+                tripType === "roundTrip"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              )}
+            >
+              Round Trip
+            </button>
+          </div>
+
+          {/* Validation / Error Banner */}
+          {validationError && (
+            <div className="mb-3.5 flex items-center justify-between gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-semibold text-rose-800 animate-in fade-in-50 duration-150">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+                <span>{validationError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setValidationError(null)}
+                className="text-rose-500 hover:text-rose-800 font-bold text-sm px-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           {/* Desktop Form Layout */}
           <div className="hidden items-end gap-2.5 lg:flex">
-            <div className="flex-1">
-              <label className="mb-1 block text-xs font-semibold text-slate-700">
-                From
-              </label>
-              <SearchBox
-                value={from}
-                onChange={setFrom}
+            <div className="flex-1 min-w-[200px]">
+              <AirportAutocomplete
+                label="From"
+                value={fromAirport}
+                onSelect={setFromAirport}
                 placeholder="From (city or airport)"
               />
             </div>
@@ -173,20 +304,24 @@ export default function FlightsLandingPage() {
               <ArrowRightLeft className="h-4 w-4" />
             </Button>
 
-            <div className="flex-1">
-              <label className="mb-1 block text-xs font-semibold text-slate-700">
-                To
-              </label>
-              <SearchBox
-                value={to}
-                onChange={setTo}
+            <div className="flex-1 min-w-[200px]">
+              <AirportAutocomplete
+                label="To"
+                value={toAirport}
+                onSelect={setToAirport}
                 placeholder="To (city or airport)"
               />
             </div>
 
-            <div className="w-40">
+            <div className={cn(tripType === "roundTrip" ? "w-36" : "w-40")}>
               <DatePicker label="Departure" value={departDate} onChange={setDepartDate} />
             </div>
+
+            {tripType === "roundTrip" && (
+              <div className="w-36 animate-in fade-in-50 duration-150">
+                <DatePicker label="Return" value={returnDate} onChange={setReturnDate} />
+              </div>
+            )}
 
             <div className="w-44">
               <PassengerSelector value={passengers} onChange={setPassengers} />
@@ -210,10 +345,20 @@ export default function FlightsLandingPage() {
 
             <Button
               onClick={handleSearch}
-              className="h-10 gap-2 px-6 font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md hover:shadow-emerald-600/20 transition-all duration-200 cursor-pointer shrink-0"
+              disabled={isSearching}
+              className="h-10 gap-2 px-6 font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md hover:shadow-emerald-600/20 transition-all duration-200 cursor-pointer shrink-0 disabled:opacity-75 disabled:cursor-not-allowed"
             >
-              <Search className="h-4 w-4" />
-              Search Flights
+              {isSearching ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Searching...</span>
+                </>
+              ) : (
+                <>
+                  <Search className="h-4 w-4" />
+                  <span>Search Flights</span>
+                </>
+              )}
             </Button>
           </div>
 
@@ -221,8 +366,12 @@ export default function FlightsLandingPage() {
           <div className="space-y-3 lg:hidden">
             <div className="grid grid-cols-1 gap-2.5">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-700">From</label>
-                <SearchBox value={from} onChange={setFrom} placeholder="From (city or airport)" />
+                <AirportAutocomplete
+                  label="From"
+                  value={fromAirport}
+                  onSelect={setFromAirport}
+                  placeholder="From (city or airport)"
+                />
               </div>
               <div className="flex justify-center">
                 <Button variant="ghost" size="sm" onClick={swapFromTo} className="gap-1.5 text-xs text-slate-600">
@@ -231,13 +380,36 @@ export default function FlightsLandingPage() {
                 </Button>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-700">To</label>
-                <SearchBox value={to} onChange={setTo} placeholder="To (city or airport)" />
+                <AirportAutocomplete
+                  label="To"
+                  value={toAirport}
+                  onSelect={setToAirport}
+                  placeholder="To (city or airport)"
+                />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className={cn("grid gap-2.5", tripType === "roundTrip" ? "grid-cols-2" : "grid-cols-2")}>
               <DatePicker label="Departure" value={departDate} onChange={setDepartDate} />
+              {tripType === "roundTrip" ? (
+                <DatePicker label="Return" value={returnDate} onChange={setReturnDate} />
+              ) : (
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">Cabin Class</label>
+                  <select
+                    value={travelClass}
+                    onChange={(e) => setTravelClass(e.target.value)}
+                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-900 shadow-2xs"
+                  >
+                    <option value="economy">Economy</option>
+                    <option value="premium_economy">Premium Econ</option>
+                    <option value="business">Business</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {tripType === "roundTrip" && (
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-700">Cabin Class</label>
                 <select
@@ -250,16 +422,26 @@ export default function FlightsLandingPage() {
                   <option value="business">Business</option>
                 </select>
               </div>
-            </div>
+            )}
 
             <PassengerSelector value={passengers} onChange={setPassengers} />
 
             <Button
               onClick={handleSearch}
-              className="h-10 w-full gap-2 text-xs font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md cursor-pointer"
+              disabled={isSearching}
+              className="h-10 w-full gap-2 text-xs font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
             >
-              <Search className="h-4 w-4" />
-              Search Flights
+              {isSearching ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Searching Flights...</span>
+                </>
+              ) : (
+                <>
+                  <Search className="h-4 w-4" />
+                  <span>Search Flights</span>
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -314,6 +496,18 @@ export default function FlightsLandingPage() {
                   onClick={() => {
                     setFrom(route.fromCity);
                     setTo(route.toCity);
+                    setFromAirport({
+                      airportCode: route.fromCode,
+                      city: route.fromCity,
+                      airportDesc: `${route.fromCity} Airport`,
+                      country: "",
+                    });
+                    setToAirport({
+                      airportCode: route.toCode,
+                      city: route.toCity,
+                      airportDesc: `${route.toCity} Airport`,
+                      country: "",
+                    });
                     setHasSearched(true);
                     router.push("/flights/search");
                   }}
