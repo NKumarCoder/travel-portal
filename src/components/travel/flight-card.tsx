@@ -37,6 +37,8 @@ export function FlightCard({ flight, isSelected, onSelect }: FlightCardProps) {
   const taxFare = "taxFare" in flight ? flight.taxFare : 0;
   const fareType = "fareType" in flight ? flight.fareType : "";
   const bookingClass = "bookingClass" in flight ? flight.bookingClass : "";
+  const departureTerminal = "terminal" in flight.departure ? flight.departure.terminal : undefined;
+  const arrivalTerminal = "terminal" in flight.arrival ? flight.arrival.terminal : undefined;
 
   const hasConnectingLayovers = stopDetails.length > 0;
 
@@ -125,9 +127,9 @@ export function FlightCard({ flight, isSelected, onSelect }: FlightCardProps) {
           <p className="text-[11px] text-slate-500 font-medium truncate">
             {flight.departure.city}
           </p>
-          {flight.departure.terminal && (
+          {departureTerminal && (
             <span className="inline-block mt-0.5 text-[9px] font-bold text-slate-600 bg-white px-1.5 py-0.2 rounded border border-slate-200">
-              {flight.departure.terminal.replace("Terminal ", "T")}
+              {departureTerminal.replace("Terminal ", "T")}
             </span>
           )}
         </div>
@@ -177,9 +179,9 @@ export function FlightCard({ flight, isSelected, onSelect }: FlightCardProps) {
           <p className="text-[11px] text-slate-500 font-medium truncate">
             {flight.arrival.city}
           </p>
-          {flight.arrival.terminal && (
+          {arrivalTerminal && (
             <span className="inline-block mt-0.5 text-[9px] font-bold text-slate-600 bg-white px-1.5 py-0.2 rounded border border-slate-200">
-              {flight.arrival.terminal.replace("Terminal ", "T")}
+              {arrivalTerminal.replace("Terminal ", "T")}
             </span>
           )}
         </div>

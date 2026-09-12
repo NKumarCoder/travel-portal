@@ -2,7 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSearchStore } from "@/store/search-store";
+import { useFlightBookingStore } from "@/store/flight-booking-store";
 import { useFlightFilterStore, type FlightSortOption } from "@/store/flight-filter-store";
 import { FlightFilterSidebar } from "@/components/travel/flight-filter-sidebar";
 import { FlightCard } from "@/components/travel/flight-card";
@@ -102,11 +104,40 @@ export default function FlightSearchResultsPage() {
     setRefundableOnly,
   } = useFlightFilterStore();
 
+  const router = useRouter();
+  const { initializeBooking } = useFlightBookingStore();
+  const [isProceedingToBooking, setIsProceedingToBooking] = React.useState(false);
+
   const [isModifyOpen, setIsModifyOpen] = React.useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = React.useState(false);
   const [modifyError, setModifyError] = React.useState<string | null>(null);
 
   const totalPassengers = passengers.adults + passengers.children + passengers.infants;
+
+  const handleProceedToBook = () => {
+    if (!selectedOnwardFlight) return;
+    if (tripType === "roundTrip" && !selectedReturnFlight) return;
+
+    setIsProceedingToBooking(true);
+
+    try {
+      initializeBooking(selectedOnwardFlight, selectedReturnFlight, {
+        tripType,
+        fromAirport,
+        toAirport,
+        departDate,
+        returnDate,
+        passengers,
+        travelClass,
+        traceId: null,
+      });
+
+      router.push("/flights/customer-information");
+    } catch (err) {
+      console.error("Failed to initialize flight customer information", err);
+      setIsProceedingToBooking(false);
+    }
+  };
 
   // Auto-fetch if results are empty but search parameters exist (e.g. direct page refresh)
   React.useEffect(() => {
@@ -320,17 +351,45 @@ export default function FlightSearchResultsPage() {
                     {travelClass.replace("_", " ")}
                   </span>
                 </p>
+
+                {/* Mobile Result Count */}
+                <div className="sm:hidden text-[11px] font-bold text-emerald-400 mt-1">
+                  {totalFound} flight option{totalFound !== 1 ? "s" : ""} found{" "}
+                  {isRoundTrip && (
+                    <span className="text-slate-300 font-normal">
+                      ({filteredOnwardFlights.length} Onward + {filteredReturnFlights.length} Return)
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsModifyOpen((prev) => !prev)}
-              className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-600 text-xs font-extrabold h-9 px-4 rounded-xl shrink-0 cursor-pointer"
-            >
-              {isModifyOpen ? "Close" : "Modify Search"}
-            </Button>
+            {/* Header Right: Result Count & Modify Search Action */}
+            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+              <div className="text-right hidden sm:block">
+                <div className="text-xs sm:text-sm font-extrabold text-white whitespace-nowrap">
+                  {totalFound} flight option{totalFound !== 1 ? "s" : ""} found
+                </div>
+                {isRoundTrip ? (
+                  <div className="text-[11px] text-emerald-400 font-semibold whitespace-nowrap">
+                    ({filteredOnwardFlights.length} Onward + {filteredReturnFlights.length} Return)
+                  </div>
+                ) : (
+                  <div className="text-[11px] text-slate-400 font-medium whitespace-nowrap">
+                    All available options
+                  </div>
+                )}
+              </div>
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsModifyOpen((prev) => !prev)}
+                className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-600 text-xs font-extrabold h-9 px-4 rounded-xl shrink-0 cursor-pointer"
+              >
+                {isModifyOpen ? "Close" : "Modify Search"}
+              </Button>
+            </div>
           </div>
 
           {/* Expanded Inline Modify Search Form */}
@@ -421,94 +480,60 @@ export default function FlightSearchResultsPage() {
         </div>
       </section>
 
-      {/* ===== 2. Workspace Toolbar ===== */}
-      <div className="bg-white border-b border-slate-200/90 shadow-2xs">
-        <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
-          {/* Result Count & Active Filter Chips */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-extrabold text-slate-900">
-              {totalFound} flight option{totalFound !== 1 ? "s" : ""} found
-              {isRoundTrip && (
-                <span className="text-slate-500 font-semibold ml-1">
-                  ({filteredOnwardFlights.length} Onward + {filteredReturnFlights.length} Return)
-                </span>
-              )}
-            </span>
-
-            {/* Active Filter Chips */}
-            {stops.map((stop) => (
-              <button
-                key={`chip-stop-${stop}`}
-                type="button"
-                onClick={() => toggleStop(stop)}
-                className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer"
-              >
-                <span>{stop === 0 ? "Non-stop" : `${stop} Stop`}</span>
-                <X className="h-3 w-3" />
-              </button>
-            ))}
-
-            {airlines.map((airline) => (
-              <button
-                key={`chip-airline-${airline}`}
-                type="button"
-                onClick={() => toggleAirline(airline)}
-                className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer"
-              >
-                <span>{airline}</span>
-                <X className="h-3 w-3" />
-              </button>
-            ))}
-
-            {refundableOnly && (
-              <button
-                type="button"
-                onClick={() => setRefundableOnly(false)}
-                className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer"
-              >
-                <span>Refundable</span>
-                <X className="h-3 w-3" />
-              </button>
-            )}
-
-            {activeFilters && (
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="text-[10px] font-bold text-slate-500 hover:text-slate-900 underline ml-1 cursor-pointer"
-              >
-                Clear all
-              </button>
-            )}
-          </div>
-
-          {/* Sort Dropdown Selector */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500">Sort by:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as FlightSortOption)}
-              className="h-8 rounded-xl border border-slate-200 bg-white px-2.5 text-xs font-bold text-slate-800 shadow-2xs hover:border-slate-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer"
-            >
-              <option value="recommended">Recommended</option>
-              <option value="cheapest">Cheapest</option>
-              <option value="fastest">Fastest Duration</option>
-              <option value="earliest">Earliest Departure</option>
-              <option value="latest">Latest Departure</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* ===== 3. Application Workspace ===== */}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex gap-6 items-start">
+      {/* ===== 2. Application Workspace (Flight Results & Filters immediately below Header) ===== */}
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex gap-6 items-start">
         {/* LEFT PANE: Sticky Filter Sidebar */}
-        <aside className="hidden lg:block w-72 shrink-0 sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pr-1">
+        <aside className="hidden lg:block w-72 shrink-0 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pr-1">
           <FlightFilterSidebar availableAirlines={availableAirlines} />
         </aside>
 
         {/* RIGHT PANE: Flight Results */}
         <main className="flex-1 min-w-0">
+          {/* Active Filter Chips bar - only rendered when filters are actually active */}
+          {activeFilters && (
+            <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl bg-white border border-slate-200/90 px-3 py-1.5 shadow-2xs">
+              <span className="text-[11px] font-extrabold text-slate-500 mr-1">Active:</span>
+              {stops.map((stop) => (
+                <button
+                  key={`chip-stop-${stop}`}
+                  type="button"
+                  onClick={() => toggleStop(stop)}
+                  className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer"
+                >
+                  <span>{stop === 0 ? "Non-stop" : `${stop} Stop`}</span>
+                  <X className="h-3 w-3" />
+                </button>
+              ))}
+              {airlines.map((airline) => (
+                <button
+                  key={`chip-airline-${airline}`}
+                  type="button"
+                  onClick={() => toggleAirline(airline)}
+                  className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer"
+                >
+                  <span>{airline}</span>
+                  <X className="h-3 w-3" />
+                </button>
+              ))}
+              {refundableOnly && (
+                <button
+                  type="button"
+                  onClick={() => setRefundableOnly(false)}
+                  className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer"
+                >
+                  <span>Refundable</span>
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="text-[10px] font-bold text-slate-500 hover:text-slate-900 underline ml-auto cursor-pointer"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
           {isSearching ? (
             <div className="space-y-4">
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-center">
@@ -582,7 +607,7 @@ export default function FlightSearchResultsPage() {
                       No onward flights match current filters.
                     </div>
                   ) : (
-                    <div className="space-y-3 max-h-[calc(100vh-14rem)] overflow-y-auto pr-1">
+                    <div className="space-y-3 max-h-[calc(100vh-10.5rem)] overflow-y-auto pr-1">
                       {filteredOnwardFlights.map((flight) => (
                         <FlightCard
                           key={flight.id}
@@ -623,7 +648,7 @@ export default function FlightSearchResultsPage() {
                       No return flights match current filters.
                     </div>
                   ) : (
-                    <div className="space-y-3 max-h-[calc(100vh-14rem)] overflow-y-auto pr-1">
+                    <div className="space-y-3 max-h-[calc(100vh-10.5rem)] overflow-y-auto pr-1">
                       {filteredReturnFlights.map((flight) => (
                         <FlightCard
                           key={flight.id}
@@ -639,7 +664,7 @@ export default function FlightSearchResultsPage() {
             </div>
           ) : (
             /* ===== ONE WAY: SINGLE ONWARD RESULTS LIST ===== */
-            <div className="space-y-3 max-h-[calc(100vh-10rem)] overflow-y-auto pr-1">
+            <div className="space-y-3 max-h-[calc(100vh-7.5rem)] overflow-y-auto pr-1">
               {filteredOnwardFlights.map((flight) => (
                 <FlightCard
                   key={flight.id}
@@ -718,20 +743,24 @@ export default function FlightSearchResultsPage() {
               </div>
 
               <Button
-                disabled={isRoundTrip ? !selectedOnwardFlight || !selectedReturnFlight : !selectedOnwardFlight}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 h-10 rounded-xl shadow-md hover:shadow-emerald-600/25 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => {
-                  alert(
-                    `Proceeding to review: ${
-                      isRoundTrip
-                        ? `Onward: ${selectedOnwardFlight?.flightNumber} + Return: ${selectedReturnFlight?.flightNumber}`
-                        : `Flight: ${selectedOnwardFlight?.flightNumber}`
-                    } (Total: ${formatCurrency(combinedPrice, selectedOnwardFlight?.currency || "INR")})`
-                  );
-                }}
+                disabled={
+                  isProceedingToBooking ||
+                  (isRoundTrip ? !selectedOnwardFlight || !selectedReturnFlight : !selectedOnwardFlight)
+                }
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 h-10 rounded-xl shadow-md hover:shadow-emerald-600/25 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                onClick={handleProceedToBook}
               >
-                <span>Proceed to Book</span>
-                <Check className="h-4 w-4 ml-1 stroke-[3]" />
+                {isProceedingToBooking ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Processing booking...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Proceed to Book</span>
+                    <Check className="h-4 w-4 stroke-[3]" />
+                  </>
+                )}
               </Button>
             </div>
           </div>
