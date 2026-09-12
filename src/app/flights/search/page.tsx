@@ -6,28 +6,27 @@ import { useSearchStore } from "@/store/search-store";
 import { useFlightFilterStore, type FlightSortOption } from "@/store/flight-filter-store";
 import { FlightFilterSidebar } from "@/components/travel/flight-filter-sidebar";
 import { FlightCard } from "@/components/travel/flight-card";
-import { SearchBox } from "@/components/ui/search-box";
+import { AirportAutocomplete } from "@/components/ui/airport-autocomplete";
 import { DatePicker } from "@/components/ui/date-picker";
 import { PassengerSelector } from "@/components/ui/passenger-selector";
 import { Button } from "@/components/ui/button";
 import { ListSkeleton } from "@/components/ui/loading-skeleton";
-import type { Flight } from "@/types";
-import flightsData from "@/data/flights.json";
-import { cn } from "@/lib/utils";
+import type { NormalizedFlightResult } from "@/types";
+import { searchFlights } from "@/services/flightSearchService";
+import { formatCurrency, cn } from "@/lib/utils";
 import {
   Plane,
   ArrowRightLeft,
   Search,
-  Filter,
   ArrowUpDown,
   X,
-  RotateCcw,
   SlidersHorizontal,
-  Calendar,
-  Users,
-  MapPin,
-  ShieldCheck,
   ArrowLeft,
+  Check,
+  AlertCircle,
+  Loader2,
+  Calendar,
+  Clock,
 } from "lucide-react";
 
 function formatDateShort(dateStr?: string): string {
@@ -36,14 +35,6 @@ function formatDateShort(dateStr?: string): string {
   if (!y || !m || !d) return dateStr;
   const date = new Date(y, m - 1, d);
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-
-function parseDurationMinutes(durationStr: string): number {
-  const parts = durationStr.match(/(\d+)h\s*(\d+)?m?/);
-  if (!parts) return 0;
-  const hours = parseInt(parts[1] || "0", 10);
-  const minutes = parseInt(parts[2] || "0", 10);
-  return hours * 60 + minutes;
 }
 
 function parseTimeMinutes(timeStr: string): number {
@@ -63,14 +54,35 @@ export default function FlightSearchResultsPage() {
   const {
     from,
     to,
+    tripType,
+    fromAirport,
+    toAirport,
     departDate,
+    returnDate,
     passengers,
     travelClass,
+    isSearching,
+    onwardFlightResults,
+    returnFlightResults,
+    selectedOnwardFlight,
+    selectedReturnFlight,
+    flightSearchError,
     setFrom,
     setTo,
+    setTripType,
+    setFromAirport,
+    setToAirport,
     setDepartDate,
+    setReturnDate,
     setPassengers,
     setTravelClass,
+    setIsSearching,
+    setOnwardFlightResults,
+    setReturnFlightResults,
+    setFlightTraceId,
+    setSelectedOnwardFlight,
+    setSelectedReturnFlight,
+    setFlightSearchError,
     swapFromTo,
   } = useSearchStore();
 
@@ -80,7 +92,6 @@ export default function FlightSearchResultsPage() {
     departureTimes,
     cabinClasses,
     refundableOnly,
-    checkinBaggageOnly,
     priceRange,
     sortBy,
     setSortBy,
@@ -91,54 +102,100 @@ export default function FlightSearchResultsPage() {
     setRefundableOnly,
   } = useFlightFilterStore();
 
-  const [flights, setFlights] = React.useState<Flight[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
   const [isModifyOpen, setIsModifyOpen] = React.useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = React.useState(false);
+  const [modifyError, setModifyError] = React.useState<string | null>(null);
 
   const totalPassengers = passengers.adults + passengers.children + passengers.infants;
 
-  // Simulate flight loading
+  // Auto-fetch if results are empty but search parameters exist (e.g. direct page refresh)
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setFlights(flightsData as Flight[]);
-      setIsLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
+    if (
+      onwardFlightResults.length === 0 &&
+      fromAirport?.airportCode &&
+      toAirport?.airportCode &&
+      departDate &&
+      !isSearching
+    ) {
+      setIsSearching(true);
+      searchFlights({
+        fromAirport,
+        toAirport,
+        departDate,
+        returnDate: tripType === "roundTrip" ? returnDate : undefined,
+        tripType,
+        passengers,
+        travelClass,
+      })
+        .then(({ onwardResults, returnResults, traceId }) => {
+          setOnwardFlightResults(onwardResults);
+          setReturnFlightResults(returnResults);
+          setFlightTraceId(traceId);
+        })
+        .catch((err) => {
+          setFlightSearchError(err instanceof Error ? err.message : "Search failed");
+        })
+        .finally(() => {
+          setIsSearching(false);
+        });
+    }
   }, []);
+
+  // Handle Modify Search Execution
+  const handleModifySearch = async () => {
+    setModifyError(null);
+    if (!fromAirport?.airportCode || !toAirport?.airportCode) {
+      setModifyError("Please select both origin and destination airports.");
+      return;
+    }
+    if (!departDate) {
+      setModifyError("Please select a departure date.");
+      return;
+    }
+    if (tripType === "roundTrip" && !returnDate) {
+      setModifyError("Please select a return date for Round Trip.");
+      return;
+    }
+
+    setIsSearching(true);
+    setSelectedOnwardFlight(null);
+    setSelectedReturnFlight(null);
+
+    try {
+      const { onwardResults, returnResults, traceId } = await searchFlights({
+        fromAirport,
+        toAirport,
+        departDate,
+        returnDate: tripType === "roundTrip" ? returnDate : undefined,
+        tripType,
+        passengers,
+        travelClass,
+      });
+
+      setOnwardFlightResults(onwardResults);
+      setReturnFlightResults(returnResults);
+      setFlightTraceId(traceId);
+      setIsModifyOpen(false);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Search failed. Please try again.";
+      setModifyError(msg);
+      setFlightSearchError(msg);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   // Dynamically extract unique available airlines from results
   const availableAirlines = React.useMemo(() => {
     const set = new Set<string>();
-    flights.forEach((f) => set.add(f.airline));
+    onwardFlightResults.forEach((f) => set.add(f.airlineName));
+    returnFlightResults.forEach((f) => set.add(f.airlineName));
     return Array.from(set);
-  }, [flights]);
+  }, [onwardFlightResults, returnFlightResults]);
 
-  // Filtering & Sorting Pipeline
-  const filteredAndSortedFlights = React.useMemo(() => {
+  // Generic Filter & Sort pipeline
+  const applyFilterAndSort = (flights: NormalizedFlightResult[]): NormalizedFlightResult[] => {
     let result = [...flights];
-
-    // Origin Filter
-    if (from.trim()) {
-      const q = from.toLowerCase().trim();
-      result = result.filter(
-        (f) =>
-          f.departure.city.toLowerCase().includes(q) ||
-          f.departure.code.toLowerCase().includes(q) ||
-          f.departure.airport.toLowerCase().includes(q)
-      );
-    }
-
-    // Destination Filter
-    if (to.trim()) {
-      const q = to.toLowerCase().trim();
-      result = result.filter(
-        (f) =>
-          f.arrival.city.toLowerCase().includes(q) ||
-          f.arrival.code.toLowerCase().includes(q) ||
-          f.arrival.airport.toLowerCase().includes(q)
-      );
-    }
 
     // Filter: Stops
     if (stops.length > 0) {
@@ -147,7 +204,7 @@ export default function FlightSearchResultsPage() {
 
     // Filter: Airlines
     if (airlines.length > 0) {
-      result = result.filter((f) => airlines.includes(f.airline));
+      result = result.filter((f) => airlines.includes(f.airlineName));
     }
 
     // Filter: Departure Time Slot
@@ -155,27 +212,17 @@ export default function FlightSearchResultsPage() {
       result = result.filter((f) => departureTimes.includes(getTimeSlot(f.departure.time)));
     }
 
-    // Filter: Cabin Class
-    if (cabinClasses.length > 0) {
-      result = result.filter((f) => cabinClasses.includes(f.class));
-    }
-
     // Filter: Refundable Only
     if (refundableOnly) {
       result = result.filter((f) => f.refundable);
     }
 
-    // Filter: Check-in Baggage Included
-    if (checkinBaggageOnly) {
+    // Filter: Price Range
+    if (priceRange && (priceRange[0] > 0 || (priceRange[1] > 0 && priceRange[1] < 100000))) {
       result = result.filter(
-        (f) => f.baggage.checkin && f.baggage.checkin.toLowerCase() !== "0kg"
+        (f) => f.price >= priceRange[0] && f.price <= priceRange[1]
       );
     }
-
-    // Filter: Price Range
-    result = result.filter(
-      (f) => f.price >= priceRange[0] && f.price <= priceRange[1]
-    );
 
     // Sorting
     switch (sortBy) {
@@ -183,9 +230,7 @@ export default function FlightSearchResultsPage() {
         result.sort((a, b) => a.price - b.price);
         break;
       case "fastest":
-        result.sort(
-          (a, b) => parseDurationMinutes(a.duration) - parseDurationMinutes(b.duration)
-        );
+        result.sort((a, b) => a.durationMinutes - b.durationMinutes);
         break;
       case "earliest":
         result.sort(
@@ -203,24 +248,30 @@ export default function FlightSearchResultsPage() {
     }
 
     return result;
-  }, [
-    flights,
-    from,
-    to,
-    stops,
-    airlines,
-    departureTimes,
-    cabinClasses,
-    refundableOnly,
-    checkinBaggageOnly,
-    priceRange,
-    sortBy,
-  ]);
+  };
+
+  const filteredOnwardFlights = React.useMemo(
+    () => applyFilterAndSort(onwardFlightResults),
+    [onwardFlightResults, stops, airlines, departureTimes, refundableOnly, priceRange, sortBy]
+  );
+
+  const filteredReturnFlights = React.useMemo(
+    () => applyFilterAndSort(returnFlightResults),
+    [returnFlightResults, stops, airlines, departureTimes, refundableOnly, priceRange, sortBy]
+  );
 
   const activeFilters = hasActiveFilters();
 
+  const isRoundTrip = tripType === "roundTrip";
+  const totalFound = isRoundTrip
+    ? filteredOnwardFlights.length + filteredReturnFlights.length
+    : filteredOnwardFlights.length;
+
+  const combinedPrice =
+    (selectedOnwardFlight?.price || 0) + (selectedReturnFlight?.price || 0);
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-16">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-28">
       {/* ===== 1. Compact Flight Journey Header ===== */}
       <section className="sticky top-16 z-30 bg-slate-950 text-white border-b border-slate-800 shadow-md">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
@@ -238,17 +289,33 @@ export default function FlightSearchResultsPage() {
                 <div className="flex items-center gap-2">
                   <Plane className="h-4 w-4 text-emerald-400 shrink-0" />
                   <h1 className="text-sm sm:text-base font-extrabold text-white truncate">
-                    {from || "Origin"} <span className="text-slate-400 font-normal">⇄</span>{" "}
-                    {to || "Destination"}
+                    {fromAirport?.airportCode || from || "Origin"}{" "}
+                    <span className="text-slate-400 font-normal">
+                      {isRoundTrip ? "⇄" : "→"}
+                    </span>{" "}
+                    {toAirport?.airportCode || to || "Destination"}
                   </h1>
+                  <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider">
+                    {isRoundTrip ? "Round Trip" : "One Way"}
+                  </span>
                 </div>
                 <p className="text-[11px] text-slate-300 font-medium truncate flex items-center gap-1.5 mt-0.5">
-                  <span>{departDate ? formatDateShort(departDate) : "Departure Date"}</span>
-                  <span className="text-slate-500 font-bold">{" • "}</span>
+                  <span>
+                    Depart: {departDate ? formatDateShort(departDate) : "--"}
+                  </span>
+                  {isRoundTrip && (
+                    <>
+                      <span className="text-slate-500 font-bold">•</span>
+                      <span>
+                        Return: {returnDate ? formatDateShort(returnDate) : "--"}
+                      </span>
+                    </>
+                  )}
+                  <span className="text-slate-500 font-bold">•</span>
                   <span>
                     {totalPassengers} Passenger{totalPassengers !== 1 ? "s" : ""}
                   </span>
-                  <span className="text-slate-500 font-bold">{" • "}</span>
+                  <span className="text-slate-500 font-bold">•</span>
                   <span className="capitalize text-emerald-400 font-bold">
                     {travelClass.replace("_", " ")}
                   </span>
@@ -269,12 +336,47 @@ export default function FlightSearchResultsPage() {
           {/* Expanded Inline Modify Search Form */}
           {isModifyOpen && (
             <div className="mt-3.5 pt-3.5 border-t border-slate-800/80 animate-in fade-in-50 duration-150">
+              {modifyError && (
+                <div className="mb-3 flex items-center gap-2 rounded-xl bg-rose-500/20 border border-rose-500/30 px-3 py-2 text-xs font-semibold text-rose-200">
+                  <AlertCircle className="h-4 w-4 text-rose-400 shrink-0" />
+                  <span>{modifyError}</span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setTripType("oneWay")}
+                  className={cn(
+                    "rounded-full px-3.5 py-1 text-xs font-extrabold transition-all cursor-pointer",
+                    tripType === "oneWay"
+                      ? "bg-emerald-500 text-slate-950 font-black"
+                      : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                  )}
+                >
+                  One Way
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTripType("roundTrip")}
+                  className={cn(
+                    "rounded-full px-3.5 py-1 text-xs font-extrabold transition-all cursor-pointer",
+                    tripType === "roundTrip"
+                      ? "bg-emerald-500 text-slate-950 font-black"
+                      : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                  )}
+                >
+                  Round Trip
+                </button>
+              </div>
+
               <div className="grid grid-cols-1 gap-3 lg:grid-cols-12 lg:items-end">
                 <div className="lg:col-span-3">
-                  <SearchBox
-                    value={from}
-                    onChange={setFrom}
-                    placeholder="From (city or airport)"
+                  <AirportAutocomplete
+                    label="From"
+                    value={fromAirport}
+                    onSelect={setFromAirport}
+                    placeholder="From airport"
                   />
                 </div>
                 <div className="flex items-center justify-center lg:col-span-1">
@@ -289,20 +391,28 @@ export default function FlightSearchResultsPage() {
                   </Button>
                 </div>
                 <div className="lg:col-span-3">
-                  <SearchBox value={to} onChange={setTo} placeholder="To (city or airport)" />
+                  <AirportAutocomplete
+                    label="To"
+                    value={toAirport}
+                    onSelect={setToAirport}
+                    placeholder="To airport"
+                  />
                 </div>
-                <div className="lg:col-span-2">
+                <div className={cn(isRoundTrip ? "lg:col-span-2" : "lg:col-span-3")}>
                   <DatePicker label="Departure" value={departDate} onChange={setDepartDate} />
                 </div>
-                <div className="lg:col-span-2">
-                  <PassengerSelector value={passengers} onChange={setPassengers} />
-                </div>
+                {isRoundTrip && (
+                  <div className="lg:col-span-2">
+                    <DatePicker label="Return" value={returnDate} onChange={setReturnDate} />
+                  </div>
+                )}
                 <div className="lg:col-span-1">
                   <Button
-                    onClick={() => setIsModifyOpen(false)}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs h-10 rounded-xl"
+                    onClick={handleModifySearch}
+                    disabled={isSearching}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs h-10 rounded-xl cursor-pointer disabled:opacity-75"
                   >
-                    Search
+                    {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
                   </Button>
                 </div>
               </div>
@@ -317,8 +427,12 @@ export default function FlightSearchResultsPage() {
           {/* Result Count & Active Filter Chips */}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-extrabold text-slate-900">
-              {filteredAndSortedFlights.length} flight
-              {filteredAndSortedFlights.length !== 1 ? "s" : ""} found
+              {totalFound} flight option{totalFound !== 1 ? "s" : ""} found
+              {isRoundTrip && (
+                <span className="text-slate-500 font-semibold ml-1">
+                  ({filteredOnwardFlights.length} Onward + {filteredReturnFlights.length} Return)
+                </span>
+              )}
             </span>
 
             {/* Active Filter Chips */}
@@ -386,20 +500,30 @@ export default function FlightSearchResultsPage() {
         </div>
       </div>
 
-      {/* ===== 3. Application 2-Pane Workspace ===== */}
+      {/* ===== 3. Application Workspace ===== */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex gap-6 items-start">
-        {/* LEFT PANE: Sticky Independent Scrolling Filter Sidebar */}
+        {/* LEFT PANE: Sticky Filter Sidebar */}
         <aside className="hidden lg:block w-72 shrink-0 sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pr-1">
           <FlightFilterSidebar availableAirlines={availableAirlines} />
         </aside>
 
-        {/* RIGHT PANE: Independent Scrolling Flight Results List */}
-        <main className="flex-1 min-w-0 space-y-3 max-h-[calc(100vh-8rem)] overflow-y-auto pr-1">
-          {isLoading ? (
-            <div className="space-y-3">
+        {/* RIGHT PANE: Flight Results */}
+        <main className="flex-1 min-w-0">
+          {isSearching ? (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-center">
+                <Loader2 className="h-6 w-6 animate-spin text-emerald-600 mx-auto mb-2" />
+                <p className="text-xs font-bold text-emerald-900">
+                  Searching live airfares from all airlines...
+                </p>
+                <p className="text-[11px] text-emerald-700 mt-0.5">
+                  Consolidating best fares for{" "}
+                  {fromAirport?.airportCode || from} → {toAirport?.airportCode || to}
+                </p>
+              </div>
               <ListSkeleton count={4} />
             </div>
-          ) : filteredAndSortedFlights.length === 0 ? (
+          ) : totalFound === 0 ? (
             /* Empty State */
             <div className="rounded-2xl border border-slate-200/90 bg-white p-8 text-center shadow-sm my-4 max-w-md mx-auto">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-3 border border-emerald-100">
@@ -407,32 +531,215 @@ export default function FlightSearchResultsPage() {
               </div>
               <h3 className="text-base font-extrabold text-slate-900">No flights found</h3>
               <p className="mt-1 text-xs text-slate-500 leading-relaxed font-medium">
-                No flights match your current filters or route. Try clearing filters or searching for different cities.
+                {flightSearchError ||
+                  "No flights match your route or active filters. Try adjusting your dates or resetting filters."}
               </p>
-              <Button
-                onClick={resetFilters}
-                className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 rounded-xl shadow-xs cursor-pointer"
-              >
-                Clear All Filters
-              </Button>
+              <div className="mt-4 flex justify-center gap-2">
+                <Button
+                  onClick={resetFilters}
+                  variant="outline"
+                  className="text-xs font-bold px-4 rounded-xl"
+                >
+                  Clear Filters
+                </Button>
+                <Button
+                  onClick={() => setIsModifyOpen(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 rounded-xl shadow-xs"
+                >
+                  Modify Search
+                </Button>
+              </div>
+            </div>
+          ) : isRoundTrip ? (
+            /* ===== DOMESTIC ROUND TRIP: SEPARATE ONWARD AND RETURN COLUMNS ===== */
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                {/* ─── Column 1: Onward Flights ──────────────────────────── */}
+                <section className="space-y-3">
+                  <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/50 p-3.5 flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-md bg-emerald-600 px-2 py-0.5 text-[10px] font-black text-white uppercase tracking-wider">
+                          Onward
+                        </span>
+                        <h2 className="text-sm font-extrabold text-slate-900">
+                          {fromAirport?.airportCode || from} → {toAirport?.airportCode || to}
+                        </h2>
+                      </div>
+                      <p className="text-[11px] text-slate-600 font-medium mt-0.5">
+                        {formatDateShort(departDate)} · {filteredOnwardFlights.length} options
+                      </p>
+                    </div>
+                    {selectedOnwardFlight && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 text-white px-2.5 py-0.5 text-[10px] font-bold">
+                        <Check className="h-3 w-3 stroke-[3]" /> Selected
+                      </span>
+                    )}
+                  </div>
+
+                  {filteredOnwardFlights.length === 0 ? (
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-xs text-slate-500">
+                      No onward flights match current filters.
+                    </div>
+                  ) : (
+                    <div className="space-y-3 max-h-[calc(100vh-14rem)] overflow-y-auto pr-1">
+                      {filteredOnwardFlights.map((flight) => (
+                        <FlightCard
+                          key={flight.id}
+                          flight={flight}
+                          isSelected={selectedOnwardFlight?.id === flight.id}
+                          onSelect={() => setSelectedOnwardFlight(flight)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                {/* ─── Column 2: Return Flights ──────────────────────────── */}
+                <section className="space-y-3">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-100/70 p-3.5 flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-black text-white uppercase tracking-wider">
+                          Return
+                        </span>
+                        <h2 className="text-sm font-extrabold text-slate-900">
+                          {toAirport?.airportCode || to} → {fromAirport?.airportCode || from}
+                        </h2>
+                      </div>
+                      <p className="text-[11px] text-slate-600 font-medium mt-0.5">
+                        {formatDateShort(returnDate)} · {filteredReturnFlights.length} options
+                      </p>
+                    </div>
+                    {selectedReturnFlight && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 text-white px-2.5 py-0.5 text-[10px] font-bold">
+                        <Check className="h-3 w-3 stroke-[3]" /> Selected
+                      </span>
+                    )}
+                  </div>
+
+                  {filteredReturnFlights.length === 0 ? (
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-xs text-slate-500">
+                      No return flights match current filters.
+                    </div>
+                  ) : (
+                    <div className="space-y-3 max-h-[calc(100vh-14rem)] overflow-y-auto pr-1">
+                      {filteredReturnFlights.map((flight) => (
+                        <FlightCard
+                          key={flight.id}
+                          flight={flight}
+                          isSelected={selectedReturnFlight?.id === flight.id}
+                          onSelect={() => setSelectedReturnFlight(flight)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </section>
+              </div>
             </div>
           ) : (
-            /* Results Cards List */
-            filteredAndSortedFlights.map((flight) => (
-              <FlightCard
-                key={flight.id}
-                flight={flight}
-                onSelect={(selectedFlight) => {
-                  // Preserved selection contract
-                }}
-              />
-            ))
+            /* ===== ONE WAY: SINGLE ONWARD RESULTS LIST ===== */
+            <div className="space-y-3 max-h-[calc(100vh-10rem)] overflow-y-auto pr-1">
+              {filteredOnwardFlights.map((flight) => (
+                <FlightCard
+                  key={flight.id}
+                  flight={flight}
+                  isSelected={selectedOnwardFlight?.id === flight.id}
+                  onSelect={() => setSelectedOnwardFlight(flight)}
+                />
+              ))}
+            </div>
           )}
         </main>
       </div>
 
-      {/* ===== 4. Mobile Floating Bottom Bar ===== */}
-      <div className="fixed bottom-4 left-4 right-4 z-40 lg:hidden flex gap-2 bg-slate-950/95 backdrop-blur-md text-white p-2 rounded-2xl shadow-2xl border border-slate-800">
+      {/* ===== 4. Sticky Bottom Round-Trip / One-Way Selection Drawer ===== */}
+      {(selectedOnwardFlight || selectedReturnFlight) && (
+        <aside
+          aria-label="Flight booking summary"
+          className="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md text-white border-t border-slate-800 py-3.5 px-4 shadow-2xl animate-in slide-in-from-bottom-6 duration-200"
+        >
+          <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-3.5">
+            <div className="flex flex-wrap items-center gap-4 text-xs">
+              {/* Selected Onward Summary */}
+              {selectedOnwardFlight ? (
+                <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5">
+                  <span className="rounded bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 text-[9px] font-black uppercase">
+                    Onward
+                  </span>
+                  <span className="font-extrabold text-white">
+                    {selectedOnwardFlight.airlineName} {selectedOnwardFlight.flightNumber}
+                  </span>
+                  <span className="text-slate-400">
+                    {selectedOnwardFlight.departure.time} → {selectedOnwardFlight.arrival.time}
+                  </span>
+                  <span className="font-black text-emerald-400">
+                    {formatCurrency(selectedOnwardFlight.price, selectedOnwardFlight.currency)}
+                  </span>
+                </div>
+              ) : isRoundTrip ? (
+                <span className="text-slate-400 text-xs italic">
+                  Select an onward flight
+                </span>
+              ) : null}
+
+              {/* Selected Return Summary */}
+              {isRoundTrip && (
+                selectedReturnFlight ? (
+                  <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5">
+                    <span className="rounded bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 text-[9px] font-black uppercase">
+                      Return
+                    </span>
+                    <span className="font-extrabold text-white">
+                      {selectedReturnFlight.airlineName} {selectedReturnFlight.flightNumber}
+                    </span>
+                    <span className="text-slate-400">
+                      {selectedReturnFlight.departure.time} → {selectedReturnFlight.arrival.time}
+                    </span>
+                    <span className="font-black text-emerald-400">
+                      {formatCurrency(selectedReturnFlight.price, selectedReturnFlight.currency)}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-slate-400 text-xs italic">
+                    Select a return flight
+                  </span>
+                )
+              )}
+            </div>
+
+            {/* Total Fare & Booking Action */}
+            <div className="flex items-center gap-4 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="text-right">
+                <span className="text-xs text-slate-400 block font-medium">Grand Total</span>
+                <span className="text-lg sm:text-xl font-black text-white tracking-tight">
+                  {formatCurrency(combinedPrice, selectedOnwardFlight?.currency || "INR")}
+                </span>
+              </div>
+
+              <Button
+                disabled={isRoundTrip ? !selectedOnwardFlight || !selectedReturnFlight : !selectedOnwardFlight}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-6 h-10 rounded-xl shadow-md hover:shadow-emerald-600/25 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => {
+                  alert(
+                    `Proceeding to review: ${
+                      isRoundTrip
+                        ? `Onward: ${selectedOnwardFlight?.flightNumber} + Return: ${selectedReturnFlight?.flightNumber}`
+                        : `Flight: ${selectedOnwardFlight?.flightNumber}`
+                    } (Total: ${formatCurrency(combinedPrice, selectedOnwardFlight?.currency || "INR")})`
+                  );
+                }}
+              >
+                <span>Proceed to Book</span>
+                <Check className="h-4 w-4 ml-1 stroke-[3]" />
+              </Button>
+            </div>
+          </div>
+        </aside>
+      )}
+
+      {/* ===== 5. Mobile Floating Filter Trigger ===== */}
+      <div className="fixed bottom-4 left-4 right-4 z-30 lg:hidden flex gap-2 bg-slate-950/95 backdrop-blur-md text-white p-2 rounded-2xl shadow-2xl border border-slate-800">
         <Button
           onClick={() => setIsMobileFilterOpen(true)}
           className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs h-10 rounded-xl gap-2 cursor-pointer"
@@ -470,7 +777,7 @@ export default function FlightSearchResultsPage() {
               <button
                 type="button"
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -482,7 +789,7 @@ export default function FlightSearchResultsPage() {
               onClick={() => setIsMobileFilterOpen(false)}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm h-11 rounded-xl shadow-md cursor-pointer"
             >
-              Apply Filters ({filteredAndSortedFlights.length} Flights)
+              Apply Filters ({totalFound} Flights)
             </Button>
           </div>
         </div>

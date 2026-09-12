@@ -35,6 +35,259 @@ export interface Flight {
   refundable: boolean;
 }
 
+export interface Airport {
+  airportCode: string;
+  city: string;
+  country: string;
+  airportDesc: string;
+  countryCode?: string;
+  type?: string;
+  showCity?: string;
+  displayName?: string;
+}
+
+export interface FlightUserDetails {
+  id: number;
+  userName: string;
+  role: number;
+  memberShip: number;
+  currency: string;
+}
+
+export interface FlightLoginResponse {
+  tokenId: string;
+  userDetails: FlightUserDetails;
+}
+
+// ============================================================
+// Flight Consolidation AirSearch API Types
+// ============================================================
+
+export interface AirSearchOriginDestination {
+  departureDateTime: string; // "YYYY-MM-DDT00:00:00"
+  origin: string;
+  destination: string;
+  flightDateFlex?: number;
+}
+
+export interface AirSearchRequest {
+  originDestinations: AirSearchOriginDestination[];
+  adultCount: number;
+  childCount: number;
+  infantCount: number;
+  cabinClass: string;
+  includeCarrier?: string[] | null;
+  excludeCarrier?: string[] | null;
+  stopOver?: string;
+  airTravelType: "oneWay" | "roundTrip";
+  flightDateFlex?: number;
+  itineraryViewType?: string;
+  currencyCode?: string;
+  pnrType?: string;
+  consolidationWaitTime?: number;
+  traceId?: string;
+  isGroupingMapped?: boolean;
+}
+
+export interface AirSearchStopOverSegment {
+  stopDepatureTime?: string;
+  stopArrivalTime?: string;
+  stopAirPortCode?: string;
+  stopDuration?: string;
+  stopGMTOffset?: string;
+  stopEquipment?: string;
+}
+
+export interface AirSearchSegment {
+  segId: string;
+  isReturn: boolean;
+  origin: string;
+  destination: string;
+  departureDateTime: string;
+  arrivalDateTime: string;
+  journeyDuration: string;
+  flightNumber: string;
+  operatingAirline: string;
+  marketingAirline: string;
+  departureTerminal?: string;
+  arrivalTerminal?: string;
+  stopOverSegments?: AirSearchStopOverSegment[];
+}
+
+export interface AirSearchFlightFare {
+  paxType: "ADT" | "CHD" | "INF" | string;
+  fareDescription?: string;
+  amount: number;
+  fareTag?: string;
+  fareCode?: string;
+}
+
+export interface AirSearchFareRule {
+  paxType: number;
+  supplierParameter?: string;
+}
+
+export interface AirSearchBaggage {
+  airline?: string;
+  paxType: string;
+  baggageInfo: string;
+  cityPair: string;
+  cabinBaggageInfo?: string;
+}
+
+export interface AirSearchSegmentInfo {
+  cityPair: string;
+  bookingClass?: string;
+  seatRemaining?: number;
+  cabinClass?: number | string;
+  key: string;
+}
+
+export interface AirSearchFareFamily {
+  purchaseType?: string;
+  fareType?: string;
+  coupanType?: string;
+  currency: string;
+  supplierParameter?: string;
+  flightFares: AirSearchFlightFare[];
+  fareRules?: AirSearchFareRule[];
+  baggage: AirSearchBaggage[];
+  segmentInfos: AirSearchSegmentInfo[];
+  isRefundable: boolean;
+  isGstMandatory: boolean;
+  commission?: number;
+  plb?: number;
+  agentMarkup?: number;
+  publishedFare?: number;
+  adultNetFare?: number;
+  childNetFare?: number;
+  infantNetFare?: number;
+  totalNetFare: number;
+  totalTaxFare?: number;
+  totalBasetFare?: number;
+  fareToken: string;
+}
+
+export interface AirSearchFare {
+  fareId: string;
+  supplierName?: string;
+  fareFamilies: AirSearchFareFamily[];
+}
+
+export interface AirSearchItineraryItem {
+  validatingCarrier: string;
+  segmentMapping: string[][];
+  fareMapping: string;
+  combinationId?: number;
+  tokens?: string;
+}
+
+export interface AirSearchItineraries {
+  mappingType?: string;
+  adultCount?: number;
+  childCount?: number;
+  infantCount?: number;
+  onward?: AirSearchItineraryItem[];
+  return?: AirSearchItineraryItem[];
+  combo?: AirSearchItineraryItem[];
+}
+
+export interface AirSearchResponse {
+  traceId: string;
+  fares: AirSearchFare[];
+  segments: AirSearchSegment[];
+  itineraries: AirSearchItineraries;
+  isGroupingMapped?: boolean;
+  status?: number | string;
+}
+
+// ============================================================
+// Normalized / Application-Facing Flight Types
+// ============================================================
+
+export interface NormalizedFlightSegment {
+  segId: string;
+  origin: string;
+  destination: string;
+  originCity?: string;
+  destinationCity?: string;
+  departureDateTime: string;
+  arrivalDateTime: string;
+  departureTime: string;
+  arrivalTime: string;
+  departureDate: string;
+  arrivalDate: string;
+  durationMinutes: number;
+  durationFormatted: string;
+  flightNumber: string;
+  airlineCode: string;
+  airlineName: string;
+  departureTerminal?: string;
+  arrivalTerminal?: string;
+  bookingClass?: string;
+  cabinClass?: string;
+  seatsRemaining?: number;
+}
+
+export interface NormalizedFlightResult {
+  id: string; // Unique deterministic ID: `${direction}:${fareId}:${fareToken}`
+  direction: "onward" | "return";
+  fareId: string;
+  fareToken: string;
+  airlineCode: string;
+  airlineName: string;
+  flightNumber: string;
+  fareType?: string;
+  bookingClass?: string;
+  departure: {
+    code: string;
+    city: string;
+    time: string;
+    date: string;
+    dateTime: string;
+    terminal?: string;
+  };
+  arrival: {
+    code: string;
+    city: string;
+    time: string;
+    date: string;
+    dateTime: string;
+    terminal?: string;
+  };
+  duration: string;
+  durationMinutes: number;
+  stops: number;
+  stopDetails: string[];
+  segments: NormalizedFlightSegment[];
+  price: number; // totalNetFare
+  baseFare: number;
+  taxFare: number;
+  publishedFare: number;
+  currency: string;
+  class: string;
+  baggage: {
+    cabin: string;
+    checkin: string;
+  };
+  refundable: boolean;
+  seatsAvailable: number;
+  flightFares: AirSearchFlightFare[];
+  fareFamilies: AirSearchFareFamily[];
+  selectedFareFamily: AirSearchFareFamily;
+  originalFare: AirSearchFare | { fareId: string; supplierName: string };
+}
+
+export interface FlightSearchParams {
+  fromAirport: Airport;
+  toAirport: Airport;
+  departDate: string;
+  returnDate?: string;
+  tripType: "oneWay" | "roundTrip";
+  passengers: PassengerCount;
+  travelClass: string;
+}
+
 export interface Hotel {
   id: string;
   name: string;

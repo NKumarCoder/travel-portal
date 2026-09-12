@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
+import { ensureFlightAuthentication } from "@/services/flightAuthService";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ComingSoonModal, type ComingSoonServiceType } from "@/components/common/coming-soon-modal";
@@ -44,6 +45,7 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [comingSoonService, setComingSoonService] = React.useState<ComingSoonServiceType>(null);
   const [isAuthenticatingBus, setIsAuthenticatingBus] = React.useState(false);
+  const [isAuthenticatingFlight, setIsAuthenticatingFlight] = React.useState(false);
 
   const handleNavClick = async (
     e: React.MouseEvent,
@@ -52,6 +54,26 @@ export function Navbar() {
     if (item.isComingSoon) {
       e.preventDefault();
       setComingSoonService(item.label as ComingSoonServiceType);
+      return;
+    }
+
+    if (item.label === "Flights") {
+      e.preventDefault();
+      if (isAuthenticatingFlight) {
+        console.log("[FLIGHT AUTH] Login request already in progress — ignoring click");
+        return;
+      }
+
+      try {
+        setIsAuthenticatingFlight(true);
+        await ensureFlightAuthentication();
+        router.push(item.href);
+      } catch (err) {
+        console.error("[FLIGHT AUTH] LOGIN FAILED");
+        console.error("[FLIGHT AUTH] Error:", err);
+      } finally {
+        setIsAuthenticatingFlight(false);
+      }
       return;
     }
 

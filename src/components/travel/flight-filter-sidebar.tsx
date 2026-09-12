@@ -65,14 +65,14 @@ export function FlightFilterSidebar({
         <div className="flex items-center justify-between">
           <span className="font-extrabold text-slate-900">Price Per Person</span>
           <span className="font-bold text-emerald-600 text-[11px]">
-            ${priceRange[0]} - ${priceRange[1]}+
+            ₹{priceRange[0].toLocaleString("en-IN")} - ₹{priceRange[1].toLocaleString("en-IN")}
           </span>
         </div>
         <input
           type="range"
           min={0}
-          max={2500}
-          step={50}
+          max={100000}
+          step={1000}
           value={priceRange[1]}
           onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
           className="w-full accent-emerald-600 cursor-pointer h-1.5 bg-slate-100 rounded-lg"
